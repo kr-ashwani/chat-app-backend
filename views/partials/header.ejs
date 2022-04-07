@@ -1,0 +1,22 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="/asserts/styles.css" />
+  </head>
+  <script>
+    function setVh() {
+      const vh = window.innerHeight * 0.0095;
+      document
+        .getElementsByTagName("html")[0]
+        .style.setProperty("--vh", `${vh}px`);
+    }
+    setVh();
+    window.addEventListener("resize", setVh);
+  </script>
+  <body>
+    <div id="root">
+      
+  </body>
+</html>

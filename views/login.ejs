@@ -1,0 +1,32 @@
+<%- include("./partials/header.ejs") -%>
+
+<div class="mainContent">
+  <div class="loginForm">
+    <form>
+      <h2>Log In</h2>
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          required
+          placeholder="Email Address"
+        />
+      </div>
+      <div class="field">
+        <label for="name">Password</label>
+        <input
+          id="pwd"
+          type="password"
+          name="password"
+          required
+          placeholder="Password"
+        />
+      </div>
+      <button type="submit">Log in</button>
+    </form>
+  </div>
+</div>
+
+<%- include("./partials/footer.ejs") -%>

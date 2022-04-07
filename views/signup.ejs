@@ -1,0 +1,178 @@
+<%- include("./partials/header.ejs") -%>
+
+<div class="mainContent">
+  <div class="signupForm">
+    <form>
+      <h2>Sign up</h2>
+      <div class="field">
+        <label for="firstName">Name</label>
+        <div class="combinedInput">
+          <input
+            id="firstName"
+            type="text"
+            name="firstName"
+            required
+            placeholder="First Name"
+          />
+          <input type="text" name="lastName" required placeholder="Last Name" />
+        </div>
+        <div class="nameError"></div>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          required
+          placeholder="Email Address"
+        />
+        <div class="emailError"></div>
+      </div>
+      <div class="field">
+        <label for="clg">College</label>
+        <input
+          id="clg"
+          type="text"
+          name="college"
+          required
+          placeholder="College Name"
+        />
+        <div class="collegeError"></div>
+      </div>
+      <div class="field">
+        <label for="hobby">Address</label>
+        <input
+          id="address"
+          type="text"
+          name="address"
+          required
+          placeholder="City or State"
+        />
+        <div class="hobbiesError"></div>
+      </div>
+      <div class="field">
+        <label for="pwd">Password</label>
+        <input
+          id="pwd"
+          type="password"
+          name="password"
+          required
+          placeholder="Password"
+          autocomplete="off"
+        />
+        <div class="pwdError"></div>
+      </div>
+      <div class="field">
+        <label for="cnfpwd">Confirm Password</label>
+        <input
+          id="cnfpwd"
+          type="password"
+          name="confirm password"
+          required
+          placeholder="Confirm Password"
+          autocomplete="off"
+        />
+        <div class="cnfPwdError"></div>
+      </div>
+      <div class="responseError"></div>
+      <button type="submit">Sign Up</button>
+    </form>
+  </div>
+</div>
+
+<%- include("./partials/footer.ejs") -%>
+
+<script>
+  const form = document.getElementsByTagName("form")[0];
+  const pwdErr = document.getElementsByClassName("pwdError")[0];
+  const cnfPwdErr = document.getElementsByClassName("cnfPwdError")[0];
+  const responseErr = document.getElementsByClassName("responseError")[0];
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorContentReset();
+
+    if (form.password.value.length < 8) {
+      pwdErr.textContent = "Password should contain atleast 8 characters.";
+      pwdErr.classList.add("error");
+      form.password.focus();
+      form.password.addEventListener("input", changeErrorMessage);
+      return;
+    }
+    if (form.password.value !== form["confirm password"].value) {
+      cnfPwdErr.textContent = "Password did not match.";
+      cnfPwdErr.classList.add("error");
+      form["confirm password"].focus();
+      form["confirm password"].addEventListener("input", changeErrorMessage);
+      return;
+    }
+    const data = {
+      firstName: form.firstName.value,
+      lastName: form.lastName.value,
+      email: form.email.value,
+      collegeName: form.college.value,
+      address: form.address.value,
+      password: form.password.value,
+      authType: "emailPassword",
+    };
+    let response;
+    try {
+      response = await fetch("/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      response = await response.json();
+    } catch (err) {
+      console.log(response);
+      responseErr.classList.add("error");
+      responseErr.textContent = err.message;
+    }
+    if (response?.message) {
+      console.log(response);
+      responseErr.classList.add("error");
+      responseErr.textContent = response.message;
+    }
+    console.log("form submitted");
+  });
+
+  function errorContentReset() {
+    pwdErr.textContent = "";
+    cnfPwdErr.textContent = "";
+    pwdErr.classList.remove("error");
+    pwdErr.classList.remove("success");
+    cnfPwdErr.classList.remove("error");
+    cnfPwdErr.classList.remove("success");
+    responseErr.classList.remove("error");
+    responseErr.textContent = "";
+  }
+  function changeErrorMessage(e) {
+    switch (e.target.name) {
+      case "password":
+        if (form.password.value.length < 8) {
+          pwdErr.classList.remove("success");
+          pwdErr.classList.add("error");
+          pwdErr.textContent = "Password should contain atleast 8 characters.";
+        } else {
+          pwdErr.classList.remove("error");
+          pwdErr.classList.add("success");
+          pwdErr.textContent = "Password length is ok.";
+        }
+        break;
+      case "confirm password":
+        if (form.password.value !== form["confirm password"].value) {
+          cnfPwdErr.classList.remove("success");
+          cnfPwdErr.classList.add("error");
+          cnfPwdErr.textContent = "Password did not match.";
+        } else {
+          cnfPwdErr.textContent = "Password matched.";
+          cnfPwdErr.classList.remove("error");
+          cnfPwdErr.classList.add("success");
+        }
+        break;
+    }
+  }
+</script>

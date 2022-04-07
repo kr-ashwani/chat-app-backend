@@ -1,0 +1,201 @@
+/* google fonts */
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
+
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-size: 1rem;
+  letter-spacing: 1px;
+  background-color: #121212;
+  color: rgb(255, 255, 255);
+  font-family: "Quicksand", sans-serif;
+  min-height: calc(var(--vh, 1vh) * 100);
+}
+#root {
+  height: 100%;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+}
+#root > *:nth-child(2) {
+  flex-grow: 1;
+}
+ul {
+  list-style-type: none;
+}
+a {
+  text-decoration: none;
+  color: #fff;
+}
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+nav ul {
+  display: flex;
+  align-items: center;
+}
+nav li {
+  margin-left: 20px;
+}
+nav li a {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.8em;
+  display: block;
+  padding: 10px 16px;
+  letter-spacing: 2px;
+}
+.btn {
+  border-radius: 36px;
+  background: #fdda50d7;
+  background: #ffd014f0;
+  color: rgb(40, 38, 38);
+}
+form h2 {
+  text-align: center;
+  font-size: 2.4em;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+.mainContent {
+  display: flex;
+  justify-content: center;
+}
+.mainContent > div {
+  max-width: 430px;
+  flex-grow: 1;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 100%;
+  padding: 30px 10px;
+  /* box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.1); */
+  /* border-radius: 10px; */
+}
+.signupForm > form {
+  gap: 0;
+  padding: 20px 10px;
+}
+.signupForm .field label {
+  margin: 15px 0 10px;
+}
+.combinedInput {
+  display: flex;
+  gap: 10px;
+}
+input {
+  -webkit-appearance: none;
+  padding: 9px 12px;
+  border-radius: 5px;
+  background-color: #fffffff5;
+  border: 1px solid rgba(221, 221, 221, 0.955);
+  font-size: 0.98rem;
+  width: 100%;
+}
+input:focus {
+  box-shadow: 0 0 1px 2px rgba(53, 248, 248, 0.719);
+  -webkit-box-shadow: 0 0 1px 2px rgba(53, 248, 248, 0.719);
+  outline: 0;
+}
+label {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin: 0 0 15px;
+}
+button {
+  margin-top: 10px;
+  cursor: pointer;
+  align-self: center;
+  color: rgb(40, 38, 38);
+  border-radius: 36px;
+  background: #fdda50d7;
+  background: #ffd014f0;
+  border: 0;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.8em;
+  padding: 10px 35px;
+  letter-spacing: 2px;
+}
+.signupForm button {
+  margin-top: 30px;
+}
+.btn:hover {
+  filter: brightness(85%);
+}
+button:hover {
+  filter: brightness(85%);
+}
+.error {
+  color: #ff0099;
+  margin: 10px 0 0;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+.responseError.error {
+  margin: 30px 0 0;
+}
+.success {
+  color: #17da3ef1;
+  margin: 10px 0 0;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+header {
+  display: flex;
+  align-items: center;
+}
+header img {
+  width: 250px;
+  margin-right: 40px;
+}
+header h2 {
+  font-size: 3em;
+  margin-bottom: 10px;
+}
+header h3 {
+  font-size: 1.6em;
+  margin-bottom: 10px;
+  margin-left: 2px;
+}
+header .btn {
+  margin-top: 20px;
+  padding: 12px 18px;
+  text-transform: uppercase;
+  font-weight: bold;
+  display: inline-block;
+  font-size: 0.8em;
+}
+.recipes {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 30px;
+  row-gap: 80px;
+  margin: 80px AUTO;
+  max-width: 1200px;
+}
+.recipe {
+  display: inline-block;
+  border-radius: 20px;
+  position: relative;
+  text-align: center;
+  padding: 0 20px 30px 20px;
+}
+.recipe img {
+  width: 100px;
+  margin: -30px auto 20px;
+}
+footer {
+  text-align: center;
+}
