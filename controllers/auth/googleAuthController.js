@@ -6,13 +6,13 @@ const crypto = require("crypto");
 const { createAccessToken, createRefreshToken } = require("../newJwtToken.js");
 const User = require("../../models/user");
 
-async function getGoogleToken(code) {
+async function getGoogleToken(code, redirectPath) {
   const url = "https://oauth2.googleapis.com/token";
   const values = {
     code,
     client_id: process.env.GOOGLE_CLIENT_ID,
     client_secret: process.env.GOOGLE_CLIENT_SECRET,
-    redirect_uri: process.env.GOOGLE_SERVER_REDIRECT,
+    redirect_uri: `${process.env.GOOGLE_SERVER_REDIRECT}${redirectPath}`,
     grant_type: "authorization_code",
   };
   try {
@@ -23,15 +23,16 @@ async function getGoogleToken(code) {
     });
     return res.data;
   } catch (err) {
-    // console.log(err);
+    console.log("error", err.message);
     throw new Error(err.message);
   }
 }
 
 async function googleSignupController(req, res) {
+  if (!req.query.code) return res.sendStatus(403);
   const code = req.query.code;
   try {
-    const { id_token, access_token } = await getGoogleToken(code);
+    const { id_token, access_token } = await getGoogleToken(code, "/signup");
     const { payload: userPayload } = jwt.decode(id_token, { complete: true });
     const password = await bcrypt.hash(
       crypto.randomBytes(10).toString("hex"),
@@ -49,7 +50,7 @@ async function googleSignupController(req, res) {
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
     const photoUrl = userPayload.picture.split("=s")[0] + "=s400-c";
-    const data = await User.create({
+    await User.create({
       firstName: userPayload.given_name,
       lastName: userPayload.family_name,
       email: userPayload.email,
@@ -57,18 +58,17 @@ async function googleSignupController(req, res) {
       address,
       password,
       authProvider: ["google"],
-      refreshToken: [refreshToken],
+      refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
       photoUrl,
       emailVerified,
       providerAccessToken: access_token,
-      tokenStoringTime: Date.now(),
     });
 
     res.cookie("_auth_token", refreshToken, {
       httpOnly: true,
-      // secure: true,
+      secure: true,
       maxAge: 60 * 1000,
-      // sameSite: "lax",
+      sameSite: "lax",
     });
 
     res.redirect(
@@ -80,4 +80,61 @@ async function googleSignupController(req, res) {
   }
 }
 
-module.exports = { googleSignupController };
+async function googleLoginController(req, res) {
+  if (!req.query.code)
+    return res.redirect(
+      `${process.env.CLIENT_REDIRECT_URL}?error=google server didn't responded.Try agian`
+    );
+  const code = req.query.code;
+  try {
+    const { id_token, access_token } = await getGoogleToken(code, "/login");
+    const { payload: userPayload } = jwt.decode(id_token, { complete: true });
+
+    if (!userPayload.email)
+      return res.redirect(
+        `${process.env.CLIENT_REDIRECT_URL}?error=no email registered in google account`
+      );
+
+    const user = await User.findOne({ email: userPayload.email }).exec();
+    if (!user)
+      return res.redirect(
+        `${process.env.CLIENT_REDIRECT_URL}?error=you are not registered.please signup`
+      );
+    const payloadData = {
+      firstName: userPayload.given_name,
+      lastName: userPayload.family_name,
+      email: userPayload.email,
+      authProvider: "google",
+    };
+    const accessToken = createAccessToken(payloadData);
+    const refreshToken = createRefreshToken(payloadData);
+
+    user.refreshTokenList = [
+      ...user.refreshTokenList,
+      { refreshToken, tokenStoringTime: Date.now() },
+    ];
+    user.providerAccessToken = access_token;
+    user.lastLoginAt = Date.now();
+
+    if (!user.authProvider.includes("google"))
+      user.authProvider = [...user.authProvider, "google"];
+
+    await user.save();
+
+    res.cookie("_auth_token", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 60 * 1000,
+      sameSite: "lax",
+    });
+
+    res.redirect(
+      `${process.env.CLIENT_REDIRECT_URL}?accessToken=${accessToken}`
+    );
+  } catch (err) {
+    console.log(err.message);
+    res.redirect(`${process.env.CLIENT_REDIRECT_URL}?error=${err.message}`);
+  }
+}
+
+module.exports = { googleSignupController, googleLoginController };

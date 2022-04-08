@@ -16,6 +16,9 @@ module.exports = async (accessToken) => {
       collegeName,
       emailVerified,
       userName,
+      createdAt,
+      lastLoginAt,
+      authProvider,
     } = await User.findOne({ email: userPayload.email }).exec();
 
     return {
@@ -27,6 +30,9 @@ module.exports = async (accessToken) => {
       collegeName,
       emailVerified,
       userName,
+      createdAt,
+      lastLoginAt,
+      authProvider,
     };
   } catch (err) {
     throw new Error(err.message);

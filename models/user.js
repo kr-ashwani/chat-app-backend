@@ -8,6 +8,18 @@ const schemaOptions = {
     updatedAt: "lastLoginAt",
   },
 };
+
+const RefreshToken = new mongoose.Schema({
+  refreshToken: {
+    type: String,
+    require: [true, "provide refresh token"],
+  },
+  tokenStoringTime: {
+    type: Number,
+    require: [true, "provide refresh token storing time"],
+  },
+});
+
 const UserSchema = new mongoose.Schema(
   {
     firstName: {
@@ -51,10 +63,8 @@ const UserSchema = new mongoose.Schema(
       validate: (v) => Array.isArray(v) && v.length > 0,
       required: [true, "provide auth provider"],
     },
-    refreshToken: {
-      type: [String],
-      validate: (v) => Array.isArray(v) && v.length > 0,
-      required: [true, "provide refresh token"],
+    refreshTokenList: {
+      type: [RefreshToken],
     },
     userName: {
       type: String,
@@ -64,7 +74,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "NA",
     },
-    tokenStoringTime: Number,
   },
   schemaOptions
 );

@@ -35,7 +35,7 @@ async function signup_post(req, res) {
       address,
       password,
       authProvider: [authType],
-      refreshToken: [refreshToken],
+      refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
       photoUrl,
     });
 
