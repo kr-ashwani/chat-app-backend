@@ -30,19 +30,16 @@ async function getGoogleToken(code) {
 
 async function googleSignupController(req, res) {
   const code = req.query.code;
-  console.log(code);
   try {
     const { id_token, access_token } = await getGoogleToken(code);
     const { payload: userPayload } = jwt.decode(id_token, { complete: true });
-    console.log(userPayload);
-
     const password = await bcrypt.hash(
       crypto.randomBytes(10).toString("hex"),
       10
     );
     const address = "NA";
     const collegeName = "NA";
-    const emailVerified = userPayload.emial_verified;
+    const emailVerified = userPayload.email_verified;
     const payloadData = {
       firstName: userPayload.given_name,
       lastName: userPayload.family_name,
@@ -64,13 +61,14 @@ async function googleSignupController(req, res) {
       photoUrl,
       emailVerified,
       providerAccessToken: access_token,
+      tokenStoringTime: Date.now(),
     });
 
     res.cookie("_auth_token", refreshToken, {
       httpOnly: true,
-      secure: true,
+      // secure: true,
       maxAge: 60 * 1000,
-      sameSite: "none",
+      // sameSite: "lax",
     });
 
     res.redirect(

@@ -65,6 +65,7 @@ async function githubSignupController(req, res) {
       const payloadData = {
         firstName,
         lastName,
+        email: userDetail.email,
         userName: userInfoFromGithub.login,
         twitter_username: Boolean(userInfoFromGithub?.twitter_username)
           ? userInfoFromGithub.twitter_username
@@ -99,7 +100,7 @@ async function githubSignupController(req, res) {
         httpOnly: true,
         secure: true,
         maxAge: 60 * 1000,
-        sameSite: "none",
+        sameSite: "lax",
       });
 
       res.redirect(

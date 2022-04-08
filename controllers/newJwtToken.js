@@ -5,7 +5,7 @@ function createAccessToken(payloadData) {
     payloadData,
     process.env.ACCESS_TOKEN_SECRET_KEY,
     {
-      expiresIn: "15s",
+      expiresIn: "30s",
     }
   );
   return accessToken;

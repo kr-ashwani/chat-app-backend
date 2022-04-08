@@ -64,6 +64,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "NA",
     },
+    tokenStoringTime: Number,
   },
   schemaOptions
 );

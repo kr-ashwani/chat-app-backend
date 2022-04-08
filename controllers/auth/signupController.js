@@ -16,13 +16,14 @@ async function signup_post(req, res) {
       collegeName,
       address,
       password,
-      authType = "others",
+      authType = "basicAuth",
       photoUrl,
     } = req.body;
     const payloadData = {
       email,
       firstName,
       lastName,
+      authProvider: "basicAuth",
     };
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
@@ -38,12 +39,11 @@ async function signup_post(req, res) {
       photoUrl,
     });
 
-    // secure:true
     res.cookie("_auth_token", refreshToken, {
       httpOnly: true,
-
+      secure: true,
       maxAge: 60 * 1000,
-      sameSite: "none",
+      sameSite: "lax",
     });
 
     //convert mongodb query object to object data.toObject().j
@@ -56,7 +56,7 @@ async function signup_post(req, res) {
       ...dataToSend
     }) => dataToSend)(data.toObject());
 
-    res.status(200).json({ accessToken, currentUser });
+    res.status(200).json({ accessToken });
   } catch (err) {
     const message = handleErrors(err);
     res.status(400).json({ message });
