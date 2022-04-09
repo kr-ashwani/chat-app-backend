@@ -1,8 +1,13 @@
-const { default: axios } = require("axios");
-const bcrypt = require("bcrypt");
-const crypto = require("crypto");
-const { createAccessToken, createRefreshToken } = require("../newJwtToken.js");
-const User = require("../../models/user");
+const { default: axios } = require('axios');
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
+const {
+  createAccessToken,
+  createRefreshToken,
+} = require('../helperFunction/newJwtToken');
+const User = require('../../models/user');
+const getValidRefreshTokenList = require('../helperFunction/getValidRefreshTokenList');
+const handleErrors = require('../helperFunction/handleErrors');
 
 async function getFbAccessToken(code, redirectPath) {
   try {
@@ -27,21 +32,21 @@ async function getFbUserInfo(access_token) {
 async function facebookSignupController(req, res) {
   if (!req.query.code) return res.sendStatus(403);
   try {
-    const access_token = await getFbAccessToken(req.query.code, "/signup");
+    const access_token = await getFbAccessToken(req.query.code, '/signup');
     const userInfo = await getFbUserInfo(access_token);
 
     const password = await bcrypt.hash(
-      crypto.randomBytes(10).toString("hex"),
+      crypto.randomBytes(10).toString('hex'),
       10
     );
-    const address = "NA";
-    const collegeName = "NA";
-    const emailVerified = "true";
+    const address = 'NA';
+    const collegeName = 'NA';
+    const emailVerified = 'true';
     const payloadData = {
       firstName: userInfo.first_name,
       lastName: userInfo.last_name,
       email: userInfo.email,
-      authProvider: "facebook",
+      authProvider: 'facebook',
     };
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
@@ -53,26 +58,28 @@ async function facebookSignupController(req, res) {
       collegeName,
       address,
       password,
-      authProvider: ["facebook"],
+      authProvider: ['facebook'],
       refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
       photoUrl,
       emailVerified,
       providerAccessToken: access_token,
     });
 
-    res.cookie("_auth_token", refreshToken, {
+    res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
       secure: true,
       maxAge: 60 * 1000,
-      sameSite: "lax",
+      sameSite: 'lax',
     });
 
-    res.redirect(
+    return res.redirect(
       `${process.env.CLIENT_REDIRECT_URL}?accessToken=${accessToken}`
     );
   } catch (err) {
     console.log(err.message);
-    res.redirect(`${process.env.CLIENT_REDIRECT_URL}?error=${err.message}`);
+    return res.redirect(
+      `${process.env.CLIENT_REDIRECT_URL}?error=${err.message}`
+    );
   }
 }
 
@@ -82,7 +89,7 @@ async function facebookLoginController(req, res) {
       `${process.env.CLIENT_REDIRECT_URL}?error=facebook server didn't responded.Try agian`
     );
   try {
-    const access_token = await getFbAccessToken(req.query.code, "/login");
+    const access_token = await getFbAccessToken(req.query.code, '/login');
     const userInfo = await getFbUserInfo(access_token);
 
     if (!userInfo.email)
@@ -99,36 +106,40 @@ async function facebookLoginController(req, res) {
       firstName: userInfo.first_name,
       lastName: userInfo.last_name,
       email: userInfo.email,
-      authProvider: "facebook",
+      authProvider: 'facebook',
     };
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
 
+    const nonExpiredRefreshToken = getValidRefreshTokenList(
+      user.refreshTokenList
+    );
+
     user.refreshTokenList = [
-      ...user.refreshTokenList,
+      ...nonExpiredRefreshToken,
       { refreshToken, tokenStoringTime: Date.now() },
     ];
     user.providerAccessToken = access_token;
     user.lastLoginAt = Date.now();
 
-    if (!user.authProvider.includes("facebook"))
-      user.authProvider = [...user.authProvider, "facebook"];
+    if (!user.authProvider.includes('facebook'))
+      user.authProvider = [...user.authProvider, 'facebook'];
 
     await user.save();
 
-    res.cookie("_auth_token", refreshToken, {
+    res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
       secure: true,
       maxAge: 60 * 1000,
-      sameSite: "lax",
+      sameSite: 'lax',
     });
 
     res.redirect(
       `${process.env.CLIENT_REDIRECT_URL}?accessToken=${accessToken}`
     );
   } catch (err) {
-    console.log(err.message);
-    res.redirect(`${process.env.CLIENT_REDIRECT_URL}?error=${err.message}`);
+    const message = handleErrors(err);
+    res.redirect(`${process.env.CLIENT_REDIRECT_URL}?error=${message}`);
   }
 }
 

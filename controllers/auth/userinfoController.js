@@ -1,4 +1,4 @@
-const getUserInfo = require("../getUserInfo");
+const getUserInfo = require("../helperFunction/getUserInfo");
 
 exports.userinfoController = async (req, res) => {
   const accessToken = req.headers.authorization.split(" ").pop();

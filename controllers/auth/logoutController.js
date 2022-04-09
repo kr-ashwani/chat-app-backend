@@ -1,9 +1,9 @@
-const jwt = require("jsonwebtoken");
-const User = require("../../models/user.js");
+const jwt = require('jsonwebtoken');
+const User = require('../../models/user');
 
 module.exports = async function (req, res) {
   const { _auth_token } = req.cookies;
-  res.clearCookie("_auth_token");
+  res.clearCookie('_auth_token');
   try {
     if (!_auth_token) return res.sendStatus(401);
 
@@ -11,9 +11,9 @@ module.exports = async function (req, res) {
     jwt.verify(
       _auth_token,
       process.env.REFRESH_TOKEN_SECRET_KEY,
-      (err, res) => {
+      (err, response) => {
         if (err) return res.sendStatus(404);
-        decoded = res;
+        decoded = response;
       }
     );
 
