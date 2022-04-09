@@ -76,10 +76,8 @@ async function facebookSignupController(req, res) {
       `${process.env.CLIENT_REDIRECT_URL}?accessToken=${accessToken}`
     );
   } catch (err) {
-    console.log(err.message);
-    return res.redirect(
-      `${process.env.CLIENT_REDIRECT_URL}?error=${err.message}`
-    );
+    const message = handleErrors(err);
+    return res.redirect(`${process.env.CLIENT_REDIRECT_URL}?error=${message}`);
   }
 }
 

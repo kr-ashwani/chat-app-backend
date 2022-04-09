@@ -90,7 +90,7 @@ async function googleLoginController(req, res) {
     return res.redirect(
       `${process.env.CLIENT_REDIRECT_URL}?error=google server didn't responded.Try agian`
     );
-  const { code } = req.queryj;
+  const { code } = req.query;
   try {
     const { id_token, access_token } = await getGoogleToken(code, '/login');
     const { payload: userPayload } = jwt.decode(id_token, { complete: true });
