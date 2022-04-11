@@ -1,16 +1,15 @@
 function handleErrors(err) {
-  // console.log(err.message, err.code);
-  // console.log(err.message);
+  console.log(err.message);
   let message = '';
 
   // incorrect email
   if (err.message === 'incorrect email') {
-    message += 'That email is not registered. ';
+    message += 'Email address is not registered. ';
   }
 
   // incorrect password
   else if (err.message === 'incorrect password') {
-    message += 'That password is incorrect. ';
+    message += 'Password is incorrect. ';
   }
 
   // duplicate email error
@@ -31,7 +30,7 @@ function handleErrors(err) {
   }
 
   //  else
-  else message += err.message;
+  else message += 'something went wrong.';
 
   return message;
 }

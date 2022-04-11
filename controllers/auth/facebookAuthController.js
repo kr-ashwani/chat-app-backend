@@ -4,10 +4,10 @@ const crypto = require('crypto');
 const {
   createAccessToken,
   createRefreshToken,
-} = require('../helperFunction/newJwtToken');
+} = require('../utils/newJwtToken');
 const User = require('../../models/user');
-const getValidRefreshTokenList = require('../helperFunction/getValidRefreshTokenList');
-const handleErrors = require('../helperFunction/handleErrors');
+const getValidRefreshTokenList = require('../utils/getValidRefreshTokenList');
+const handleErrors = require('../utils/handleErrors');
 
 async function getFbAccessToken(code, redirectPath) {
   try {
@@ -30,10 +30,18 @@ async function getFbUserInfo(access_token) {
 }
 
 async function facebookSignupController(req, res) {
-  if (!req.query.code) return res.sendStatus(403);
+  if (!req.query.code)
+    return res.redirect(
+      `${process.env.CLIENT_REDIRECT_URL}?error=facebook server didn't respond.Try agian`
+    );
   try {
     const access_token = await getFbAccessToken(req.query.code, '/signup');
     const userInfo = await getFbUserInfo(access_token);
+
+    if (!userInfo.email)
+      return res.redirect(
+        `${process.env.CLIENT_REDIRECT_URL}?error=Your google account doesnot have a registered email.`
+      );
 
     const password = await bcrypt.hash(
       crypto.randomBytes(10).toString('hex'),
@@ -84,7 +92,7 @@ async function facebookSignupController(req, res) {
 async function facebookLoginController(req, res) {
   if (!req.query.code)
     return res.redirect(
-      `${process.env.CLIENT_REDIRECT_URL}?error=facebook server didn't responded.Try agian`
+      `${process.env.CLIENT_REDIRECT_URL}?error=facebook server didn't respond.Try agian`
     );
   try {
     const access_token = await getFbAccessToken(req.query.code, '/login');
@@ -92,7 +100,7 @@ async function facebookLoginController(req, res) {
 
     if (!userInfo.email)
       return res.redirect(
-        `${process.env.CLIENT_REDIRECT_URL}?error=no email registered in google account`
+        `${process.env.CLIENT_REDIRECT_URL}?error=Your google account doesnot have a registered email.`
       );
 
     const user = await User.findOne({ email: userInfo.email }).exec();

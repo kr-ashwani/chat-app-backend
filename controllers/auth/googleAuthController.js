@@ -6,10 +6,10 @@ const crypto = require('crypto');
 const {
   createAccessToken,
   createRefreshToken,
-} = require('../helperFunction/newJwtToken');
+} = require('../utils/newJwtToken');
 const User = require('../../models/user');
-const getValidRefreshTokenList = require('../helperFunction/getValidRefreshTokenList');
-const handleErrors = require('../helperFunction/handleErrors');
+const getValidRefreshTokenList = require('../utils/getValidRefreshTokenList');
+const handleErrors = require('../utils/handleErrors');
 
 async function getGoogleToken(code, redirectPath) {
   const url = 'https://oauth2.googleapis.com/token';
@@ -34,11 +34,21 @@ async function getGoogleToken(code, redirectPath) {
 }
 
 async function googleSignupController(req, res) {
-  if (!req.query.code) return res.sendStatus(403);
+  if (!req.query.code)
+    return res.redirect(
+      `${process.env.CLIENT_REDIRECT_URL}?error=google server didn't responded.Try agian`
+    );
+
   const { code } = req.query;
   try {
     const { id_token, access_token } = await getGoogleToken(code, '/signup');
     const { payload: userPayload } = jwt.decode(id_token, { complete: true });
+
+    if (!userPayload.email)
+      return res.redirect(
+        `${process.env.CLIENT_REDIRECT_URL}?error=No email registered in google account.`
+      );
+
     const password = await bcrypt.hash(
       crypto.randomBytes(10).toString('hex'),
       10
@@ -97,13 +107,13 @@ async function googleLoginController(req, res) {
 
     if (!userPayload.email)
       return res.redirect(
-        `${process.env.CLIENT_REDIRECT_URL}?error=no email registered in google account`
+        `${process.env.CLIENT_REDIRECT_URL}?error=No email registered in google account`
       );
 
     const user = await User.findOne({ email: userPayload.email }).exec();
     if (!user)
       return res.redirect(
-        `${process.env.CLIENT_REDIRECT_URL}?error=you are not registered.please signup`
+        `${process.env.CLIENT_REDIRECT_URL}?error=You are not registered.please signup`
       );
     const payloadData = {
       firstName: userPayload.given_name,

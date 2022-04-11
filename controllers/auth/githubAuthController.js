@@ -4,10 +4,10 @@ const crypto = require('crypto');
 const {
   createAccessToken,
   createRefreshToken,
-} = require('../helperFunction/newJwtToken');
+} = require('../utils/newJwtToken');
 const User = require('../../models/user');
-const getValidRefreshTokenList = require('../helperFunction/getValidRefreshTokenList');
-const handleErrors = require('../helperFunction/handleErrors');
+const getValidRefreshTokenList = require('../utils/getValidRefreshTokenList');
+const handleErrors = require('../utils/handleErrors');
 
 async function getGithubAccessToken(code) {
   try {
@@ -48,17 +48,22 @@ async function getGithubUserDetail(access_token) {
 }
 
 async function githubSignupController(req, res) {
-  if (!req.query.code) return res.sendStatus(403);
+  if (!req.query.code)
+    return res.redirect(
+      `${process.env.CLIENT_REDIRECT_URL}?error=github server didn't respond.Try agian`
+    );
   try {
     const access_token = await getGithubAccessToken(req.query.code);
     const userDetail = await getGithubUserDetail(access_token);
 
     if (!userDetail?.data?.id)
-      throw new Error('no user details returned from github server.');
+      return res.redirect(
+        `${process.env.CLIENT_REDIRECT_URL}?error=no user details returned from github server.`
+      );
 
     if (!userDetail.email)
-      throw new Error(
-        "Your don't have registered email to your github account."
+      return res.redirect(
+        `${process.env.CLIENT_REDIRECT_URL}?error="You don't have registered email to your github account."`
       );
 
     const userInfoFromGithub = userDetail.data;
@@ -126,11 +131,12 @@ async function githubLoginController(req, res) {
     const userDetail = await getGithubUserDetail(access_token);
 
     if (!userDetail?.data?.id)
-      throw new Error('no user details returned from github server.');
-
+      return res.redirect(
+        `${process.env.CLIENT_REDIRECT_URL}?error=No user details returned from github server.`
+      );
     if (!userDetail.email)
-      throw new Error(
-        "Your don't have registered email to your github account."
+      return res.redirect(
+        `${process.env.CLIENT_REDIRECT_URL}?error=You don't have registered email to your github account.`
       );
 
     const userInfoFromGithub = userDetail.data;
@@ -155,7 +161,7 @@ async function githubLoginController(req, res) {
     const user = await User.findOne({ email: payloadData.email }).exec();
     if (!user)
       return res.redirect(
-        `${process.env.CLIENT_REDIRECT_URL}?error=you are not registered.please signup`
+        `${process.env.CLIENT_REDIRECT_URL}?error=You are not registered.please signup`
       );
 
     const accessToken = createAccessToken(payloadData);

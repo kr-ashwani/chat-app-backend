@@ -1,9 +1,10 @@
+const bcrypt = require('bcrypt');
 const User = require('../../models/user');
-const handleErrors = require('../helperFunction/handleErrors');
+const handleErrors = require('../utils/handleErrors');
 const {
   createAccessToken,
   createRefreshToken,
-} = require('../helperFunction/handleErrors');
+} = require('../utils/newJwtToken');
 
 function signup_get(req, res) {
   res.render('signup');
@@ -27,6 +28,8 @@ async function signup_post(req, res) {
       lastName,
       authProvider: 'basicAuth',
     };
+    const passHash = await bcrypt.hash(password, 10);
+
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
     await User.create({
@@ -35,7 +38,7 @@ async function signup_post(req, res) {
       email,
       collegeName,
       address,
-      password,
+      password: passHash,
       authProvider: [authType],
       refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
       photoUrl,

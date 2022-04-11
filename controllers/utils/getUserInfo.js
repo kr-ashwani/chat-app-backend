@@ -1,5 +1,6 @@
-const jwt = require("jsonwebtoken");
-const User = require("../../models/user");
+const jwt = require('jsonwebtoken');
+const User = require('../../models/user');
+const handleErrors = require('./handleErrors');
 
 module.exports = async (accessToken) => {
   try {
@@ -35,6 +36,7 @@ module.exports = async (accessToken) => {
       authProvider,
     };
   } catch (err) {
-    throw new Error(err.message);
+    const message = handleErrors(err);
+    throw new Error(message);
   }
 };

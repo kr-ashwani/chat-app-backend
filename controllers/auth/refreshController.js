@@ -2,14 +2,15 @@ const jwt = require('jsonwebtoken');
 const {
   createAccessToken,
   createRefreshToken,
-} = require('../helperFunction/newJwtToken');
+} = require('../utils/newJwtToken');
 const User = require('../../models/user');
-const getValidRefreshTokenList = require('../helperFunction/getValidRefreshTokenList');
+const getValidRefreshTokenList = require('../utils/getValidRefreshTokenList');
+const handleErrors = require('../utils/handleErrors');
 
 async function refreshController(req, res) {
   const { _auth_token } = req.cookies;
   try {
-    if (!_auth_token) return res.sendStatus(401);
+    if (!_auth_token) return res.status(200).json({ message: 'unauthorized' });
 
     const newTokenTime = Number(req.headers['x-tokenreqtime']);
     const decoded = jwt.verify(
@@ -83,8 +84,8 @@ async function refreshController(req, res) {
     }
     res.status(200).json({ accessToken });
   } catch (err) {
-    console.log(err.message);
-    res.sendStatus(403);
+    const message = handleErrors(err);
+    res.status(403).json({ message });
   }
 }
 
