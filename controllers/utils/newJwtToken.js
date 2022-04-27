@@ -1,11 +1,11 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 function createAccessToken(payloadData) {
   const accessToken = jwt.sign(
     payloadData,
     process.env.ACCESS_TOKEN_SECRET_KEY,
     {
-      expiresIn: "30s",
+      expiresIn: '30s',
     }
   );
   return accessToken;
@@ -15,7 +15,7 @@ function createRefreshToken(payloadData) {
     payloadData,
     process.env.REFRESH_TOKEN_SECRET_KEY,
     {
-      expiresIn: "1m",
+      expiresIn: '1m',
     }
   );
   return refreshToken;

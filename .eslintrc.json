@@ -12,6 +12,7 @@
     "no-console": 0,
     "camelcase": "off",
     "func-names": ["error", "never"],
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "no-underscore-dangle": "off"
   }
 }

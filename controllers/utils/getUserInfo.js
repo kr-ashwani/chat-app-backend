@@ -1,13 +1,7 @@
-const jwt = require('jsonwebtoken');
-const User = require('../../models/user');
 const handleErrors = require('./handleErrors');
 
-module.exports = async (accessToken) => {
+module.exports = async (user) => {
   try {
-    const userPayload = jwt.verify(
-      accessToken,
-      process.env.ACCESS_TOKEN_SECRET_KEY
-    );
     const {
       firstName,
       lastName,
@@ -20,7 +14,7 @@ module.exports = async (accessToken) => {
       createdAt,
       lastLoginAt,
       authProvider,
-    } = await User.findOne({ email: userPayload.email }).exec();
+    } = user;
 
     return {
       firstName,
