@@ -11,6 +11,7 @@ async function tokenGeneration(req, res, next) {
   const { _auth_token } = req.cookies;
   const _access_token = req.headers.authorization?.split(' ').pop();
   // console.log('access token : ', _access_token);
+  console.log('hello');
   try {
     if (_access_token) {
       const decoded = jwt.verify(
@@ -69,6 +70,7 @@ async function tokenGeneration(req, res, next) {
     //  only in development strict mode react renders twice
     //  don't do anthing here react renders twice so you will get requestedUserRefreshToken.length=0
     //  hacked user
+
     if (!requestedUserRefreshToken.length) {
       console.log('user is hacked');
       user.refreshTokenList = [];
@@ -113,7 +115,7 @@ async function tokenGeneration(req, res, next) {
       res.cookie('_auth_token', refreshToken, {
         httpOnly: true,
         secure: true,
-        maxAge: 60 * 1000,
+        maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
         sameSite: 'lax',
       });
 

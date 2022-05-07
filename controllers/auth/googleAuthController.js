@@ -53,8 +53,6 @@ async function googleSignupController(req, res) {
       crypto.randomBytes(10).toString('hex'),
       10
     );
-    const address = 'NA';
-    const collegeName = 'NA';
     const emailVerified = userPayload.email_verified;
     const payloadData = {
       firstName: userPayload.given_name,
@@ -69,8 +67,6 @@ async function googleSignupController(req, res) {
       firstName: userPayload.given_name,
       lastName: userPayload.family_name,
       email: userPayload.email,
-      collegeName,
-      address,
       password,
       authProvider: ['google'],
       refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
@@ -82,7 +78,7 @@ async function googleSignupController(req, res) {
     res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 60 * 1000,
+      maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
 
@@ -146,7 +142,7 @@ async function googleLoginController(req, res) {
     res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 60 * 1000,
+      maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
 

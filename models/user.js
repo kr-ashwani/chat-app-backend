@@ -29,14 +29,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, 'enter last name'],
     },
-    collegeName: {
-      type: String,
-      required: [true, 'enter college name'],
-    },
-    address: {
-      type: String,
-      required: [true, 'enter address'],
-    },
     password: {
       type: String,
       minlength: [6, 'Minimum password length should be 6 characters'],

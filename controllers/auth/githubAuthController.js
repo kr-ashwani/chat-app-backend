@@ -88,8 +88,6 @@ async function githubSignupController(req, res) {
       crypto.randomBytes(10).toString('hex'),
       10
     );
-    const address = 'NA';
-    const collegeName = 'NA';
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
     const photoUrl = userInfoFromGithub.avatar_url;
@@ -97,8 +95,6 @@ async function githubSignupController(req, res) {
       firstName,
       lastName,
       email: userDetail.email,
-      collegeName,
-      address,
       password,
       authProvider: ['github'],
       refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
@@ -111,7 +107,7 @@ async function githubSignupController(req, res) {
     res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 60 * 1000,
+      maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
 
@@ -189,7 +185,7 @@ async function githubLoginController(req, res) {
     res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 60 * 1000,
+      maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
 

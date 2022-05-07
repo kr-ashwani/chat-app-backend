@@ -47,8 +47,6 @@ async function facebookSignupController(req, res) {
       crypto.randomBytes(10).toString('hex'),
       10
     );
-    const address = 'NA';
-    const collegeName = 'NA';
     const emailVerified = 'true';
     const payloadData = {
       firstName: userInfo.first_name,
@@ -63,8 +61,6 @@ async function facebookSignupController(req, res) {
       firstName: userInfo.first_name,
       lastName: userInfo.last_name,
       email: userInfo.email,
-      collegeName,
-      address,
       password,
       authProvider: ['facebook'],
       refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
@@ -76,7 +72,7 @@ async function facebookSignupController(req, res) {
     res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 60 * 1000,
+      maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
 
@@ -136,7 +132,7 @@ async function facebookLoginController(req, res) {
     res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
       secure: true,
-      maxAge: 60 * 1000,
+      maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
 
