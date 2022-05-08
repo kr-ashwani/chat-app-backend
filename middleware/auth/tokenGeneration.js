@@ -6,12 +6,12 @@ const {
 const User = require('../../models/user');
 const getValidRefreshTokenList = require('../../controllers/utils/getValidRefreshTokenList');
 const handleErrors = require('../../controllers/utils/handleErrors');
+const getUserInfo = require('../../controllers/utils/getUserInfo');
 
 async function tokenGeneration(req, res, next) {
   const { _auth_token } = req.cookies;
   const _access_token = req.headers.authorization?.split(' ').pop();
   // console.log('access token : ', _access_token);
-  console.log('hello');
   try {
     if (_access_token) {
       const decoded = jwt.verify(
@@ -114,7 +114,7 @@ async function tokenGeneration(req, res, next) {
 
       res.cookie('_auth_token', refreshToken, {
         httpOnly: true,
-        secure: true,
+        // secure: true,
         maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
         sameSite: 'lax',
       });
@@ -123,7 +123,7 @@ async function tokenGeneration(req, res, next) {
     }
 
     req.accessToken = accessToken;
-    req.user = user;
+    req.user = getUserInfo(user);
 
     return next();
   } catch (err) {

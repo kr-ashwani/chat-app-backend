@@ -1,6 +1,6 @@
 const handleErrors = require('./handleErrors');
 
-module.exports = async (user) => {
+function getUserInfo(user) {
   try {
     const {
       firstName,
@@ -14,6 +14,7 @@ module.exports = async (user) => {
       createdAt,
       lastLoginAt,
       authProvider,
+      _id,
     } = user;
 
     return {
@@ -28,9 +29,12 @@ module.exports = async (user) => {
       createdAt,
       lastLoginAt,
       authProvider,
+      _id,
     };
   } catch (err) {
     const message = handleErrors(err);
     throw new Error(message);
   }
-};
+}
+
+module.exports = getUserInfo;

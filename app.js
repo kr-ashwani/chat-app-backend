@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 require('dotenv').config(); // for accessing environment variables
 const authRoutes = require('./routes/authRoutes/authRoutes');
 const authProvidersRoutes = require('./routes/authRoutes/authProvidersRoutes');
+const apiRoutes = require('./routes/api/apiRoutes');
 const tokenGeneration = require('./middleware/auth/tokenGeneration');
 
 const port = process.env.PORT || 3300;
@@ -50,6 +51,7 @@ app.get('/', async (req, res) => {
 });
 app.use(authRoutes);
 app.use('/auth', authProvidersRoutes);
+app.use('/api', apiRoutes);
 
 app.listen(port, () => {
   console.log(`server running on ${port}`);

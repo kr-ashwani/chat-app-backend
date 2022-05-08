@@ -42,7 +42,7 @@ async function signup_post(req, res) {
 
     res.cookie('_auth_token', refreshToken, {
       httpOnly: true,
-      secure: true,
+      // secure: true,
       maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
