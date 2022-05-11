@@ -43,7 +43,10 @@ async function tokenGeneration(req, res, next) {
 
     const user = await User.findOne({ email: userPayload.email }).exec();
     //  have refresh token but no user found
-    if (!user) req.sendStatus(403);
+    if (!user) {
+      res.clearCookie('_auth_token');
+      return res.sendStatus(403);
+    }
 
     // console.log("culprit", requestedUserRefreshToken);
     // React strict mode problem

@@ -5,10 +5,8 @@ function getUserInfo(user) {
     const {
       firstName,
       lastName,
-      address,
       email,
       photoUrl,
-      collegeName,
       emailVerified,
       userName,
       createdAt,
@@ -20,10 +18,8 @@ function getUserInfo(user) {
     return {
       firstName,
       lastName,
-      address,
       email,
       photoUrl,
-      collegeName,
       emailVerified,
       userName,
       createdAt,

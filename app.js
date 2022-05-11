@@ -1,14 +1,31 @@
 const express = require('express');
+const http = require('http');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config(); // for accessing environment variables
+const socketio = require('socket.io');
 const authRoutes = require('./routes/authRoutes/authRoutes');
 const authProvidersRoutes = require('./routes/authRoutes/authProvidersRoutes');
-const apiRoutes = require('./routes/api/apiRoutes');
 const tokenGeneration = require('./middleware/auth/tokenGeneration');
+const chatHandler = require('./socketEventHandlers/chatHandler');
+const messageHandler = require('./socketEventHandlers/messageHandler');
+const userHandler = require('./socketEventHandlers/userHandler');
 
 const port = process.env.PORT || 3300;
+
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server, {
+  cors: {
+    origin: [
+      'http://192.168.29.250:3000',
+      'http://localhost:3000',
+      'https://jwt-login-app.netlify.app/',
+    ],
+    credentials: true,
+  },
+});
 
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -18,7 +35,6 @@ mongoose
 // now we don't use body-parser instead we use express built-in express.json()
 // express.urlencoded() for decoding default encyted data form form i.e. application/x-www-form-urlencoded.
 
-const app = express();
 app.use(cookieParser()); // it populate cookies in req object which contains cookies sent by client.
 app.use(express.json()); // it parses incoming requests with JSON payloads.
 //  it encodes forms's default application/x-www-form-urlencoded.
@@ -51,8 +67,19 @@ app.get('/', async (req, res) => {
 });
 app.use(authRoutes);
 app.use('/auth', authProvidersRoutes);
-app.use('/api', apiRoutes);
 
-app.listen(port, () => {
+//  socket logic
+
+// socket middleware
+// i will populate socket.request property in middleware
+
+io.on('connection', (socket) => {
+  console.log('A new connection is  made : ', socket.id);
+  chatHandler(io, socket);
+  messageHandler(io, socket);
+  userHandler(io, socket);
+});
+
+server.listen(port, () => {
   console.log(`server running on ${port}`);
 });
