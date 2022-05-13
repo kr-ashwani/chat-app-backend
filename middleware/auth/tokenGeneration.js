@@ -10,6 +10,7 @@ const getUserInfo = require('../../controllers/utils/getUserInfo');
 
 async function tokenGeneration(req, res, next) {
   const { _auth_token } = req.cookies;
+  console.log(_auth_token);
   const _access_token = req.headers.authorization?.split(' ').pop();
   // console.log('access token : ', _access_token);
   try {

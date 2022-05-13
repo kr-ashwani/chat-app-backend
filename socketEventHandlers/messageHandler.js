@@ -1,12 +1,14 @@
 const handleErrors = require('../controllers/utils/handleErrors');
 const Chat = require('../models/chat');
 const Message = require('../models/message');
+const User = require('../models/user');
+const getUserInfo = require('../controllers/utils/getUserInfo');
 
 function messageHandler(io, socket) {
   const getMessageList = async (payload) => {
     try {
       const _id = payload;
-      const response = await Message.find({
+      const chatRoomMsgs = await Message.find({
         chatRoomID: _id,
       })
         .sort({
@@ -14,7 +16,7 @@ function messageHandler(io, socket) {
         })
         .exec();
 
-      socket.emit('message:list', { response });
+      socket.emit('message:list', { chatRoomID: _id, chatRoomMsgs });
     } catch (err) {
       const message = handleErrors(err);
       socket.emit('message:list', { error: message });
@@ -22,6 +24,7 @@ function messageHandler(io, socket) {
   };
 
   const createNewMessage = async ({ messageData, selectedChat }) => {
+    console.log(messageData);
     let userObj = null;
     let newChat = null;
 
@@ -64,8 +67,19 @@ function messageHandler(io, socket) {
           updatedAt,
         });
 
-        // socket.to(senderID).emit('DB:chatRoom:create', { newChat });
-        // socket.to(receiverID).emit('DB:chatRoom:create', { newChat });
+        const senderInfo = getUserInfo(
+          (await User.findOne({ _id: senderID }).exec()).toObject()
+        );
+        const receiverInfo = getUserInfo(
+          (await User.findOne({ _id: receiverID }).exec()).toObject()
+        );
+
+        socket
+          .to(senderID)
+          .emit('DB:chatRoom:create', { receiverInfo, newChat });
+        socket
+          .to(receiverID)
+          .emit('DB:chatRoom:create', { senderInfo, newChat });
 
         chatRoomID = newChat._id;
       }
@@ -84,25 +98,32 @@ function messageHandler(io, socket) {
           { new: true }
         );
 
-        // const chatRoom = await Chat.findOne({
-        //   _id: messageData.chatRoomID,
-        // }).exec();
+        const chatRoom = await Chat.findOne({ _id: chatRoomID }).exec();
 
-        // chatRoom.participants.forEach((elem) => {
-        //   socket.to(elem).emit('DB:message:create', { chatRoom });
-        // });
+        const updatedChat = {
+          _id: messageData.chatRoomID,
+          lastMessage: messageData.message,
+          lastMessageType: messageData.messageType,
+          lastMessageTimestamp: createdAt,
+          updatedAt,
+        };
+
+        chatRoom.participants.forEach((elem) => {
+          socket.to(elem).emit('DB:chatRoom:update', { updatedChat });
+        });
       }
 
       const lastMsg = await Message.findOne({
         messageType: { $ne: 'information' },
       }).sort({ createdAt: -1 });
 
+      // console.log(lastMsg);
+
       if (lastMsg && lastMsg.senderID === senderID)
         if ((createdAt - lastMsg.createdAt) / (1000 * 60) < 1) {
           lastMsg.showUserInfo = false;
           lastMsg.save();
         }
-
       const newMsg = await Message.create({
         senderID,
         senderName,
