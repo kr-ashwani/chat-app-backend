@@ -11,6 +11,9 @@ const tokenGeneration = require('./middleware/auth/tokenGeneration');
 const chatHandler = require('./socketEventHandlers/chatHandler');
 const messageHandler = require('./socketEventHandlers/messageHandler');
 const userHandler = require('./socketEventHandlers/userHandler');
+const joinRoomHandler = require('./socketEventHandlers/joinRoomHandler');
+const leaveRoomHandler = require('./socketEventHandlers/leaveRoomHandler');
+const dbMessageHandler = require('./socketEventHandlers/dbMessageHandlers');
 
 const port = process.env.PORT || 3300;
 
@@ -68,17 +71,20 @@ app.get('/', async (req, res) => {
 app.use(authRoutes);
 app.use('/auth', authProvidersRoutes);
 
+//  mongodb change stream logic
+
 //  socket logic
-
-// socket middleware
-// i will populate socket.request property in middleware
-
 io.on('connection', (socket) => {
   console.log('A new connection is  made : ', socket.id);
+  joinRoomHandler(io, socket);
   chatHandler(io, socket);
   messageHandler(io, socket);
   userHandler(io, socket);
+  leaveRoomHandler(io, socket);
 });
+
+// message handler
+// dbMessageHandler(io);
 
 server.listen(port, () => {
   console.log(`server running on ${port}`);
