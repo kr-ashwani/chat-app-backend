@@ -10,7 +10,7 @@ const schemaOptions = {
 
 const RefreshToken = new mongoose.Schema({
   refreshToken: {
-    type: String,
+    type: Array,
     require: [true, 'provide refresh token'],
   },
   tokenStoringTime: {

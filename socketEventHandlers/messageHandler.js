@@ -24,7 +24,6 @@ function messageHandler(io, socket) {
   };
 
   const createNewMessage = async ({ messageData, selectedChat }) => {
-    console.log(messageData);
     let userObj = null;
     let newChat = null;
 
@@ -124,6 +123,7 @@ function messageHandler(io, socket) {
           lastMsg.showUserInfo = false;
           lastMsg.save();
         }
+
       const newMsg = await Message.create({
         senderID,
         senderName,

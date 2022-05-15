@@ -69,7 +69,9 @@ async function googleSignupController(req, res) {
       email: userPayload.email,
       password,
       authProvider: ['google'],
-      refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
+      refreshTokenList: [
+        { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
+      ],
       photoUrl,
       emailVerified,
       providerAccessToken: access_token,
@@ -126,7 +128,7 @@ async function googleLoginController(req, res) {
 
     user.refreshTokenList = [
       ...nonExpiredRefreshToken,
-      { refreshToken, tokenStoringTime: Date.now() },
+      { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
     ];
     user.providerAccessToken = access_token;
     user.lastLoginAt = Date.now();

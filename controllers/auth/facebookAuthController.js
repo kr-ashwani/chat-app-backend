@@ -63,7 +63,9 @@ async function facebookSignupController(req, res) {
       email: userInfo.email,
       password,
       authProvider: ['facebook'],
-      refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
+      refreshTokenList: [
+        { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
+      ],
       photoUrl,
       emailVerified,
       providerAccessToken: access_token,
@@ -119,7 +121,7 @@ async function facebookLoginController(req, res) {
 
     user.refreshTokenList = [
       ...nonExpiredRefreshToken,
-      { refreshToken, tokenStoringTime: Date.now() },
+      { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
     ];
     user.providerAccessToken = access_token;
     user.lastLoginAt = Date.now();

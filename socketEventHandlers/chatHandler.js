@@ -33,7 +33,6 @@ function chatHandler(io, socket) {
   };
 
   const chatRoomsList = async (payload) => {
-    console.log('chat list request');
     try {
       let response = await Chat.find({
         participants: { $all: [payload] },

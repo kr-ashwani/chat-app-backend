@@ -23,7 +23,7 @@ module.exports = async function (req, res) {
     if (!user) return res.sendStatus(403);
 
     const remaingRefreshTokenList = user.refreshTokenList.filter(
-      (token) => token.refreshToken !== _auth_token
+      (token) => !token.refreshToken.includes(_auth_token)
     );
     user.refreshTokenList = remaingRefreshTokenList;
     await user.save();

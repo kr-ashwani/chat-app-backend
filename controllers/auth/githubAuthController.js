@@ -97,7 +97,9 @@ async function githubSignupController(req, res) {
       email: userDetail.email,
       password,
       authProvider: ['github'],
-      refreshTokenList: [{ refreshToken, tokenStoringTime: Date.now() }],
+      refreshTokenList: [
+        { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
+      ],
       photoUrl,
       userName: userInfoFromGithub.login,
       providerAccessToken: access_token,
@@ -169,7 +171,7 @@ async function githubLoginController(req, res) {
 
     user.refreshTokenList = [
       ...nonExpiredRefreshToken,
-      { refreshToken, tokenStoringTime: Date.now() },
+      { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
     ];
 
     user.providerAccessToken = access_token;

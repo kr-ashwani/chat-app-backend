@@ -10,7 +10,6 @@ const getUserInfo = require('../../controllers/utils/getUserInfo');
 
 async function tokenGeneration(req, res, next) {
   const { _auth_token } = req.cookies;
-  console.log(_auth_token);
   const _access_token = req.headers.authorization?.split(' ').pop();
   // console.log('access token : ', _access_token);
   try {
@@ -67,8 +66,8 @@ async function tokenGeneration(req, res, next) {
       user.refreshTokenList
     );
 
-    let requestedUserRefreshToken = nonExpiredRefreshToken.filter(
-      (token) => token.refreshToken === _auth_token
+    let requestedUserRefreshToken = nonExpiredRefreshToken.filter((token) =>
+      token.refreshToken.includes(_auth_token)
     );
 
     //  only in development strict mode react renders twice
@@ -105,14 +104,21 @@ async function tokenGeneration(req, res, next) {
       //  removing expired refreshtoken
 
       const remaingRefreshTokenList = nonExpiredRefreshToken.filter(
-        (token) => token.refreshToken !== _auth_token
+        (token) => !token.refreshToken.includes(_auth_token)
       );
       const refreshToken = createRefreshToken(userPayload);
 
-      user.refreshTokenList = [
-        ...remaingRefreshTokenList,
-        { refreshToken, tokenStoringTime: Date.now() },
-      ];
+      const newRefresh = requestedUserRefreshToken;
+      if (newRefresh.refreshToken.length === 2) {
+        newRefresh.refreshToken.shift();
+        newRefresh.refreshToken.push(refreshToken);
+        newRefresh.tokenStoringTime = Date.now();
+      } else if (newRefresh.refreshToken.length === 1) {
+        newRefresh.refreshToken.push(refreshToken);
+        newRefresh.tokenStoringTime = Date.now();
+      }
+
+      user.refreshTokenList = [...remaingRefreshTokenList, newRefresh];
 
       await user.save();
 

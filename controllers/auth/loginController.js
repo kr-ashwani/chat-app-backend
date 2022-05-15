@@ -34,7 +34,7 @@ async function login_post(req, res) {
 
     user.refreshTokenList = [
       ...nonExpiredRefreshToken,
-      { refreshToken, tokenStoringTime: Date.now() },
+      { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
     ];
     user.lastLoginAt = Date.now();
 
