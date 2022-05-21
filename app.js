@@ -54,6 +54,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.set('trust proxy', 1);
 // for serving static files creates dedicated routes for files.
 // app.use(express.static("public"));
 // http://localhost:3300/style.css
