@@ -98,7 +98,7 @@ async function facebookLoginController(req, res) {
 
     if (!userInfo.email)
       return res.redirect(
-        `${process.env.CLIENT_REDIRECT_URL}?error=Your google account doesnot have a registered email.`
+        `${process.env.CLIENT_REDIRECT_URL}?error=Your facebook account doesnot have a registered email.`
       );
 
     const user = await User.findOne({ email: userInfo.email }).exec();
@@ -136,6 +136,7 @@ async function facebookLoginController(req, res) {
       // secure: true,
       maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
+      domain: 'chat-app-010.netlify.app',
     });
 
     res.redirect(
