@@ -124,7 +124,7 @@ async function tokenGeneration(req, res, next) {
 
       res.cookie('_auth_token', refreshToken, {
         httpOnly: true,
-        secure: true,
+        // secure: true,
         maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
         sameSite: 'lax',
       });
