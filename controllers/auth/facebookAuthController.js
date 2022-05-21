@@ -136,7 +136,6 @@ async function facebookLoginController(req, res) {
       // secure: true,
       maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
-      domain: 'chat-app-010.netlify.app',
     });
 
     res.redirect(
