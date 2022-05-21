@@ -41,9 +41,9 @@ async function login_post(req, res) {
     await user.save();
 
     res.cookie('_auth_token', refreshToken, {
-      domain: '.netlify.app',
+      domain: '.agile-dusk-57703.herokuapp.com',
       httpOnly: true,
-      secure: true,
+      // secure: true,
       maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
