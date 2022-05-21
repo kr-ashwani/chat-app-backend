@@ -41,6 +41,7 @@ async function login_post(req, res) {
     await user.save();
 
     res.cookie('_auth_token', refreshToken, {
+      domain: '.netlify.app',
       httpOnly: true,
       secure: true,
       maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
