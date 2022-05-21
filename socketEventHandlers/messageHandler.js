@@ -1,127 +1,83 @@
 const handleErrors = require('../controllers/utils/handleErrors');
 const Chat = require('../models/chat');
 const Message = require('../models/message');
-const User = require('../models/user');
-const getUserInfo = require('../controllers/utils/getUserInfo');
 
 function messageHandler(io, socket) {
-  const getMessageList = async (payload) => {
+  const getMessageList = async ({ chatRoomID }) => {
     try {
-      const _id = payload;
       const chatRoomMsgs = await Message.find({
-        chatRoomID: _id,
+        chatRoomID,
       })
         .sort({
-          lastUpdatedAt: 1,
+          updatedAt: 1,
         })
         .exec();
 
-      socket.emit('message:list', { chatRoomID: _id, chatRoomMsgs });
+      socket.emit('message:list', { chatRoomID, chatRoomMsgs });
     } catch (err) {
       const message = handleErrors(err);
       socket.emit('message:list', { error: message });
     }
   };
 
-  const createNewMessage = async ({ messageData, selectedChat }) => {
-    let userObj = null;
-    let newChat = null;
-
-    if (selectedChat)
-      userObj = (({ chatRoomID, selectedUserID, createdAt, ...rest }) => rest)(
-        selectedChat
-      );
+  const createNewMessage = async ({ messageData, checkPending }) => {
     try {
       const {
         senderID,
+        messageID,
         senderName,
         senderPhotoUrl,
         message,
         messageType,
         createdAt,
         updatedAt,
-        receiverID,
-        chatRoomUpdatedID,
+        chatRoomID,
+        showUserInfo,
       } = messageData;
 
-      let { chatRoomID } = messageData;
+      const checkMsg = await Message.findOne({ messageID }).exec();
 
-      if (!messageData.chatRoomID) {
-        const chats = await Chat.find({
-          participants: { $all: [senderID, receiverID] },
-        }).exec();
-        if (chats.length)
-          return socket.emit('message:create', {
-            error: 'chat room alredy present',
-          });
-        newChat = await Chat.create({
-          participants: [senderID, receiverID],
-          lastMessage: messageData.message,
-          lastMessageType: messageData.messageType,
-          lastMessageTimestamp: createdAt,
-          chatRoomUpdatedID,
-          chatPicture: '',
-          chatname: '',
-          createdAt,
-          updatedAt,
-        });
-
-        const senderInfo = getUserInfo(
-          (await User.findOne({ _id: senderID }).exec()).toObject()
-        );
-        const receiverInfo = getUserInfo(
-          (await User.findOne({ _id: receiverID }).exec()).toObject()
-        );
-
-        socket
-          .to(senderID)
-          .emit('DB:chatRoom:create', { receiverInfo, newChat });
-        socket
-          .to(receiverID)
-          .emit('DB:chatRoom:create', { senderInfo, newChat });
-
-        chatRoomID = newChat._id;
+      if (checkMsg && checkPending) {
+        setTimeout(() => {
+          socket.emit('chatRoom:send:moreMsgs', { chatRoomID, messageID });
+        }, 400);
+        return;
       }
 
-      if (messageData.chatRoomID) {
-        await Chat.findOneAndUpdate(
-          { _id: messageData.chatRoomID },
-          {
-            $set: {
-              lastMessage: messageData.message,
-              lastMessageType: messageData.messageType,
-              lastMessageTimestamp: createdAt,
-              updatedAt,
-            },
+      await Chat.findOneAndUpdate(
+        { chatRoomID },
+        {
+          $set: {
+            lastMessage: message,
+            lastMessageType: messageType,
+            lastMessageTimestamp: createdAt,
+            updatedAt,
+            lastMessageID: messageID,
           },
-          { new: true }
-        );
+        }
+      );
 
-        const chatRoom = await Chat.findOne({ _id: chatRoomID }).exec();
-
-        const updatedChat = {
-          _id: messageData.chatRoomID,
-          lastMessage: messageData.message,
-          lastMessageType: messageData.messageType,
-          lastMessageTimestamp: createdAt,
-          updatedAt,
-        };
-
-        chatRoom.participants.forEach((elem) => {
-          socket.to(elem).emit('DB:chatRoom:update', { updatedChat });
-        });
-      }
+      const updatedChatRoom = {
+        chatRoomID,
+        lastMessage: message,
+        lastMessageType: messageType,
+        lastMessageTimestamp: createdAt,
+        updatedAt,
+        lastMessageID: messageID,
+      };
 
       const lastMsg = await Message.findOne({
         messageType: { $ne: 'information' },
-      }).sort({ createdAt: -1 });
+      })
+        .sort({ createdAt: -1 })
+        .exec();
 
       // console.log(lastMsg);
-
+      // console.log(createdAt);
       if (lastMsg && lastMsg.senderID === senderID)
         if ((createdAt - lastMsg.createdAt) / (1000 * 60) < 1) {
           lastMsg.showUserInfo = false;
-          lastMsg.save();
+          await lastMsg.save();
         }
 
       const newMsg = await Message.create({
@@ -133,31 +89,87 @@ function messageHandler(io, socket) {
         messageType,
         createdAt,
         updatedAt,
+        messageID,
+        showUserInfo,
       });
 
-      if (!messageData.chatRoomID)
-        socket.emit('message:create', {
-          newChatRoom: {
-            ...newChat.toObject(),
-            ...userObj,
-          },
-          newMsg,
-          selectedChatRoom: selectedChat,
-        });
+      const chatRoom = await Chat.findOne({ chatRoomID }).exec();
 
-      const chatRoom = await Chat.findOne({ _id: chatRoomID }).exec();
+      chatRoom.participants.forEach((elem) => {
+        socket.to(elem).emit('DB:chatRoom:update', { updatedChatRoom });
+      });
 
       chatRoom.participants.forEach((elem) => {
         socket.to(elem).emit('DB:message:create', { newMsg, lastMsg });
       });
+
+      io.to(senderID).emit('message:sent', {
+        chatRoomID,
+        messageID,
+      });
+
+      if (checkPending)
+        setTimeout(() => {
+          socket.emit('chatRoom:send:moreMsgs', { chatRoomID, messageID });
+        }, 400);
     } catch (err) {
       const message = handleErrors(err);
       socket.emit('message:create', { error: message });
     }
   };
 
+  const sentMessage = async ({ messageID }) => {
+    try {
+      const msg = await Message.findOne({ messageID }).exec();
+      if (!msg) return;
+      if (msg.messageStatus.sent) return;
+      msg.messageStatus.sent = true;
+      await msg.save();
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const receivedMessage = async ({ messageID, senderID, chatRoomID }) => {
+    try {
+      const msg = await Message.findOne({ messageID }).exec();
+      if (!msg) return;
+
+      socket.to(senderID).emit('message:delivered', { chatRoomID, messageID });
+      if (msg.messageStatus.delivered) return;
+
+      msg.messageStatus.delivered = true;
+      await msg.save();
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  const seenMessage = async ({ messageID, senderID, chatRoomID }) => {
+    try {
+      const msg = await Message.findOne({ messageID }).exec();
+      if (!msg) return;
+
+      socket.to(senderID).emit('message:seen', { chatRoomID, messageID });
+      if (msg.messageStatus.seen) return;
+
+      msg.messageStatus.seen = true;
+      await msg.save();
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
+  function checkSocketOnline(payload) {
+    socket.emit('online:message', payload);
+  }
+
+  socket.on('online:message', checkSocketOnline);
   socket.on('message:list', getMessageList);
   socket.on('message:create', createNewMessage);
+  socket.on('message:sent', sentMessage);
+  socket.on('message:seen', seenMessage);
+  socket.on('message:received', receivedMessage);
 }
 
 module.exports = messageHandler;

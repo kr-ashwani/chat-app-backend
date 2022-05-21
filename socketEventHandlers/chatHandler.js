@@ -6,25 +6,51 @@ const User = require('../models/user');
 function chatHandler(io, socket) {
   const createGroupChatRoom = async (payload) => {
     try {
-      const { participants, lastMessage, lastMessageType, lastMessageID } =
-        payload;
+      const {
+        participants,
+        lastMessage,
+        lastMessageType,
+        lastMessageID,
+        createdAt,
+        updatedAt,
+        chatRoomID,
+        lastMessageTimestamp,
+        messageData,
+      } = payload;
+
+      const newChatRoom = await Chat.create({
+        participants,
+        lastMessage,
+        lastMessageType,
+        createdAt,
+        updatedAt,
+        lastMessageID,
+        chatRoomID,
+        lastMessageTimestamp,
+      });
+
+      // chatRoom:create:success
+
+      socket.emit('chatRoom:create:success', { messageData });
+
       if (participants.length === 2) {
-        const chats = await Chat.find({
-          participants: { $all: [participants[0], participants[1]] },
+        const senderInfo = await User.findOne({ _id: participants[0] }).exec();
+        const receiverInfo = await User.findOne({
+          _id: participants[1],
         }).exec();
-        if (chats.length)
-          return socket.emit('chatRoom:create', {
-            error: 'chat room already exist.',
-          });
-        const newChat = await Chat.create({
-          participants,
-          lastMessage,
-          lastMessageType,
-          lastMessageID,
-          chatPicture: '',
-          chatname: '',
+
+        socket.to(participants[0]).emit('DB:chatRoom:create', {
+          firstName: receiverInfo.firstName,
+          lastName: receiverInfo.lastName,
+          photoUrl: receiverInfo.photoUrl,
+          newChatRoom,
         });
-        socket.emit('chatRoom:create', { response: newChat });
+        socket.to(participants[1]).emit('DB:chatRoom:create', {
+          firstName: senderInfo.firstName,
+          lastName: senderInfo.lastName,
+          photoUrl: senderInfo.photoUrl,
+          newChatRoom,
+        });
       }
     } catch (err) {
       const message = handleErrors(err);

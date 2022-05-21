@@ -13,7 +13,8 @@ const messageHandler = require('./socketEventHandlers/messageHandler');
 const userHandler = require('./socketEventHandlers/userHandler');
 const joinRoomHandler = require('./socketEventHandlers/joinRoomHandler');
 const leaveRoomHandler = require('./socketEventHandlers/leaveRoomHandler');
-const dbMessageHandler = require('./socketEventHandlers/dbMessageHandlers');
+const checkPendingMessageHandler = require('./socketEventHandlers/checkPendingMessageHandler');
+const messageSyncHandler = require('./socketEventHandlers/messageSyncHandler');
 
 const port = process.env.PORT || 3300;
 
@@ -78,6 +79,8 @@ io.on('connection', (socket) => {
   console.log('A new connection is  made : ', socket.id);
   joinRoomHandler(io, socket);
   chatHandler(io, socket);
+  messageSyncHandler(io, socket);
+  checkPendingMessageHandler(io, socket);
   messageHandler(io, socket);
   userHandler(io, socket);
   leaveRoomHandler(io, socket);
