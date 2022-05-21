@@ -125,9 +125,9 @@ async function tokenGeneration(req, res, next) {
       res.cookie('_auth_token', refreshToken, {
         domain: '.agile-dusk-57703.herokuapp.com',
         httpOnly: true,
-        // secure: true,
+        secure: true,
         maxAge: 432000000,
-        sameSite: 'lax',
+        sameSite: 'none',
       });
 
       console.log('new refresh token generated');

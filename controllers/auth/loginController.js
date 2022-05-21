@@ -43,9 +43,9 @@ async function login_post(req, res) {
     res.cookie('_auth_token', refreshToken, {
       domain: '.agile-dusk-57703.herokuapp.com',
       httpOnly: true,
-      // secure: true,
+      secure: true,
       maxAge: 432000000,
-      sameSite: 'lax',
+      sameSite: 'none',
     });
 
     res.status(200).json({ accessToken });
