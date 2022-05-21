@@ -40,7 +40,7 @@ function messageHandler(io, socket) {
       if (checkMsg && checkPending) {
         setTimeout(() => {
           socket.emit('chatRoom:send:moreMsgs', { chatRoomID, messageID });
-        }, 400);
+        }, 0);
         return;
       }
 
@@ -111,7 +111,7 @@ function messageHandler(io, socket) {
       if (checkPending)
         setTimeout(() => {
           socket.emit('chatRoom:send:moreMsgs', { chatRoomID, messageID });
-        }, 400);
+        }, 0);
     } catch (err) {
       const message = handleErrors(err);
       socket.emit('message:create', { error: message });
