@@ -44,7 +44,13 @@ async function tokenGeneration(req, res, next) {
     const user = await User.findOne({ email: userPayload.email }).exec();
     //  have refresh token but no user found
     if (!user) {
-      res.clearCookie('_auth_token');
+      res.clearCookie('_auth_token', {
+        domain: '.agile-dusk-57703.herokuapp.com',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        path: '/',
+      });
       return res.sendStatus(403);
     }
 
@@ -80,7 +86,13 @@ async function tokenGeneration(req, res, next) {
 
       await user.save();
 
-      res.clearCookie('_auth_token');
+      res.clearCookie('_auth_token', {
+        domain: '.agile-dusk-57703.herokuapp.com',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        path: '/',
+      });
       return res.sendStatus(403);
     }
 
@@ -126,7 +138,7 @@ async function tokenGeneration(req, res, next) {
         domain: '.agile-dusk-57703.herokuapp.com',
         httpOnly: true,
         secure: true,
-        maxAge: 432000000,
+        maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
         sameSite: 'none',
       });
 
