@@ -25,7 +25,7 @@ const io = socketio(server, {
     origin: [
       'http://192.168.29.250:3000',
       'http://localhost:3000',
-      'https://jwt-login-app.netlify.app/',
+      'https://chat-app-010.netlify.app/',
     ],
     credentials: true,
   },
@@ -49,7 +49,7 @@ app.use(
     origin: [
       'http://192.168.29.250:3000',
       'http://localhost:3000',
-      'https://jwt-login-app.netlify.app/',
+      'https://chat-app-010.netlify.app/',
     ],
     credentials: true,
   })
