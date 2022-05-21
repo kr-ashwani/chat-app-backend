@@ -44,7 +44,7 @@ async function login_post(req, res) {
       domain: '.agile-dusk-57703.herokuapp.com',
       httpOnly: true,
       secure: true,
-      maxAge: 432000000,
+      maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'none',
     });
 
