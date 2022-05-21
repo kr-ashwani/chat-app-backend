@@ -38,6 +38,7 @@ module.exports = async function (req, res) {
 
     // res.sendStatus(200);
   } catch (err) {
+    console.log(err.message);
     res.sendStatus(404);
   }
 };
