@@ -132,6 +132,8 @@ async function facebookLoginController(req, res) {
     await user.save();
 
     res.cookie('_auth_token', refreshToken, {
+      domain: 'chat-app-010.netlify.app',
+      path: '/',
       httpOnly: true,
       secure: true,
       maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
