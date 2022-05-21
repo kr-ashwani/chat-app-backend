@@ -4,6 +4,7 @@ const User = require('../../models/user');
 module.exports = async function (req, res) {
   const { _auth_token } = req.cookies;
   res.clearCookie('_auth_token');
+  console.log(_auth_token);
   res.sendStatus(200);
   try {
     // if (!_auth_token) return res.sendStatus(401);
