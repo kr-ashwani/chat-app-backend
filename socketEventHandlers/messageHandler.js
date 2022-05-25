@@ -68,11 +68,12 @@ function messageHandler(io, socket) {
 
       const lastMsg = await Message.findOne({
         messageType: { $ne: 'information' },
+        chatRoomID,
       })
         .sort({ createdAt: -1 })
         .exec();
 
-      // console.log(lastMsg);
+      console.log(lastMsg);
       // console.log(createdAt);
       if (lastMsg && lastMsg.senderID === senderID)
         if ((createdAt - lastMsg.createdAt) / (1000 * 60) < 1) {

@@ -14,6 +14,7 @@ const MessageSchema = new mongoose.Schema({
   },
   showUserInfo: {
     type: Boolean,
+    default: true,
     required: [true, 'showuserinfo is  missing'],
   },
   senderID: {
