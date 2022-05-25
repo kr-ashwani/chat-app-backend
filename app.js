@@ -91,6 +91,7 @@ io.on('connection', (socket) => {
 // message handler
 // dbMessageHandler(io);
 
+console.log('hello');
 server.listen(port, () => {
   console.log(`server running on ${port}`);
 });
