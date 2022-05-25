@@ -43,10 +43,11 @@ async function signup_post(req, res) {
     });
 
     res.cookie('_auth_token', refreshToken, {
+      domain: '.agile-dusk-57703.herokuapp.com',
       httpOnly: true,
-      // secure: true,
+      secure: true,
       maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
-      sameSite: 'lax',
+      sameSite: 'none',
     });
 
     //  convert mongodb query object to object data.toObject().j
