@@ -6,6 +6,7 @@ function userHandler(io, socket) {
   const getUserlist = async (payload) => {
     try {
       let response = await User.find({ _id: { $ne: payload } })
+        .collation({ locale: 'en' })
         .sort({ firstName: 1 })
         .exec();
       response = response.map((elem) => getUserInfo(elem));
