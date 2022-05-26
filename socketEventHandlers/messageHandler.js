@@ -73,7 +73,7 @@ function messageHandler(io, socket) {
         .sort({ createdAt: -1 })
         .exec();
 
-      console.log(lastMsg);
+      // console.log(lastMsg);
       // console.log(createdAt);
       if (lastMsg && lastMsg.senderID === senderID)
         if ((createdAt - lastMsg.createdAt) / (1000 * 60) < 1) {
