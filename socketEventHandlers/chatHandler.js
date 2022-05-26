@@ -64,7 +64,7 @@ function chatHandler(io, socket) {
         participants: { $all: [payload] },
       })
         .sort({
-          lastUpdatedAt: -1,
+          updatedAt: -1,
         })
         .exec();
 

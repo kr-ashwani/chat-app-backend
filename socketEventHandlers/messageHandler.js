@@ -9,7 +9,7 @@ function messageHandler(io, socket) {
         chatRoomID,
       })
         .sort({
-          updatedAt: 1,
+          createdAt: 1,
         })
         .exec();
 
@@ -67,8 +67,8 @@ function messageHandler(io, socket) {
       };
 
       const lastMsg = await Message.findOne({
-        messageType: { $ne: 'information' },
         chatRoomID,
+        messageType: { $ne: 'information' },
       })
         .sort({ createdAt: -1 })
         .exec();
