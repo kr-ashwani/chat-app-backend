@@ -4,11 +4,10 @@ const User = require('../../models/user');
 module.exports = async function (req, res) {
   const { _auth_token } = req.cookies;
   res.clearCookie('_auth_token', {
-    domain: '.agile-dusk-57703.herokuapp.com',
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    path: '/',
+    // secure: true,
+    maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
+    sameSite: 'lax',
   });
   console.log(_auth_token);
   res.sendStatus(200);
