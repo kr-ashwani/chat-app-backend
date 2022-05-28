@@ -74,18 +74,23 @@ async function tokenGeneration(req, res, next) {
     //  don't do anthing here react renders twice so you will get requestedUserRefreshToken.length=0
     //  hacked user
 
-    if (!requestedUserRefreshToken.length) {
-      console.log('user is hacked');
-      user.refreshTokenList = [];
+    if (
+      (newTokenTime - requestedUserRefreshToken.tokenStoringTime) / 1000 >
+      30
+    ) {
+      if (!requestedUserRefreshToken.length) {
+        console.log('user is hacked');
+        user.refreshTokenList = [];
 
-      await user.save();
+        await user.save();
 
-      res.clearCookie('_auth_token');
-      return res.sendStatus(403);
+        res.clearCookie('_auth_token');
+        return res.sendStatus(403);
+      }
+
+      [requestedUserRefreshToken] = requestedUserRefreshToken;
+      if (!requestedUserRefreshToken?.refreshToken) return res.sendStatus(403);
     }
-
-    [requestedUserRefreshToken] = requestedUserRefreshToken;
-    if (!requestedUserRefreshToken?.refreshToken) return res.sendStatus(403);
 
     const accessToken = createAccessToken(userPayload);
 
