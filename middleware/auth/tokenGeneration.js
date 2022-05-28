@@ -44,12 +44,7 @@ async function tokenGeneration(req, res, next) {
     const user = await User.findOne({ email: userPayload.email }).exec();
     //  have refresh token but no user found
     if (!user) {
-      res.clearCookie('_auth_token', {
-        httpOnly: true,
-        // secure: true,
-        maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
-        sameSite: 'lax',
-      });
+      res.clearCookie('_auth_token');
       return res.sendStatus(403);
     }
 
@@ -85,12 +80,7 @@ async function tokenGeneration(req, res, next) {
 
       await user.save();
 
-      res.clearCookie('_auth_token', {
-        httpOnly: true,
-        // secure: true,
-        maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
-        sameSite: 'lax',
-      });
+      res.clearCookie('_auth_token');
       return res.sendStatus(403);
     }
 

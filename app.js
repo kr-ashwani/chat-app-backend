@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const http = require('http');
 const cookieParser = require('cookie-parser');
@@ -22,7 +23,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
   cors: {
-    origin: ['https://msgbits.com', 'https://www.msgbits.com'],
+    origin: [
+      'https://msgbits.com',
+      'https://www.msgbits.com',
+      'http://localhost:3300',
+      'http://192.168.29.250:3300',
+    ],
     credentials: true,
   },
 });
@@ -42,30 +48,36 @@ app.use(express.urlencoded({ extended: true }));
 // for allowing other domains to see our resources(endpoints)
 app.use(
   cors({
-    origin: ['https://msgbits.com', 'https://www.msgbits.com'],
+    origin: [
+      'https://msgbits.com',
+      'https://www.msgbits.com',
+      'http://localhost:3300',
+      'http://192.168.29.250:3300',
+    ],
     credentials: true,
   })
 );
 
-app.set('trust proxy', 1);
+// app.set('trust proxy', 1);
 // for serving static files creates dedicated routes for files.
 // app.use(express.static("public"));
 // http://localhost:3300/style.css
-app.use('/assets', express.static('public'));
+// app.use('/assets', express.static('public'));
 //  http://localhost:3300/assets/style.css
 
 // app.use(getData);  custom middleware.
 
-app.set('view engine', 'ejs');
+// app.set('view engine', 'ejs');
 //  populate accessToken refreshToken and user in request.
 app.use(tokenGeneration);
 //  routes
-app.get('/', async (req, res) => {
-  res.render('home');
-});
 app.use(authRoutes);
 app.use('/auth', authProvidersRoutes);
 
+app.use(express.static('../frontend/build'));
+app.get('/*', async (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+});
 //  mongodb change stream logic
 
 //  socket logic
