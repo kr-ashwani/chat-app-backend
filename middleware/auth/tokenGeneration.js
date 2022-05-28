@@ -10,7 +10,7 @@ const getUserInfo = require('../../controllers/utils/getUserInfo');
 
 async function tokenGeneration(req, res, next) {
   const { _auth_token } = req.cookies;
-  console.log('hello');
+  // console.log('hello');
   const _access_token = req.headers.authorization?.split(' ').pop();
   // console.log('access token : ', _access_token);
   try {
@@ -129,11 +129,10 @@ async function tokenGeneration(req, res, next) {
       await user.save();
 
       res.cookie('_auth_token', refreshToken, {
-        domain: '.agile-dusk-57703.herokuapp.com',
         httpOnly: true,
-        secure: true,
+        // secure: true,
         maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
-        sameSite: 'none',
+        sameSite: 'lax',
       });
 
       console.log('new refresh token generated');
