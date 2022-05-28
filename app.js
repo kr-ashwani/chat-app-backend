@@ -22,11 +22,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
   cors: {
-    origin: [
-      'http://192.168.29.250:3000',
-      'http://localhost:3000',
-      'https://chat-app-010.netlify.app',
-    ],
+    origin: ['https://msgbits.com', 'https://www.msgbits.com'],
     credentials: true,
   },
 });
@@ -46,11 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 // for allowing other domains to see our resources(endpoints)
 app.use(
   cors({
-    origin: [
-      'http://192.168.29.250:3000',
-      'http://localhost:3000',
-      'https://chat-app-010.netlify.app',
-    ],
+    origin: ['https://msgbits.com', 'https://www.msgbits.com'],
     credentials: true,
   })
 );
