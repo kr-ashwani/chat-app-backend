@@ -76,8 +76,6 @@ app.use('/auth', authProvidersRoutes);
 
 app.use(express.static('../frontend/build'));
 app.get('/*', async (req, res) => {
-  console.log('mola');
-  console.log('params ', req.params);
   res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
 //  mongodb change stream logic
