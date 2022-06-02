@@ -26,8 +26,8 @@ const io = socketio(server, {
     origin: [
       'https://msgbits.com',
       'https://www.msgbits.com',
-      'http://localhost:3300',
-      'http://192.168.29.250:3300',
+      'http://localhost:3000',
+      'http://192.168.29.250:3000',
     ],
     credentials: true,
   },
@@ -51,8 +51,8 @@ app.use(
     origin: [
       'https://msgbits.com',
       'https://www.msgbits.com',
-      'http://localhost:3300',
-      'http://192.168.29.250:3300',
+      'http://localhost:3000',
+      'http://192.168.29.250:3000',
     ],
     credentials: true,
   })

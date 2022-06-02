@@ -16,6 +16,7 @@ function chatHandler(io, socket) {
         chatRoomID,
         lastMessageTimestamp,
         messageData,
+        msgInfoTime,
       } = payload;
 
       const newChatRoom = await Chat.create({
@@ -31,7 +32,7 @@ function chatHandler(io, socket) {
 
       // chatRoom:create:success
 
-      socket.emit('chatRoom:create:success', { messageData });
+      socket.emit('chatRoom:create:success', { messageData, msgInfoTime });
 
       if (participants.length === 2) {
         const senderInfo = await User.findOne({ _id: participants[0] }).exec();
