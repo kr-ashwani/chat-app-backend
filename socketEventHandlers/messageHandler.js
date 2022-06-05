@@ -33,7 +33,10 @@ function messageHandler(io, socket) {
         updatedAt,
         chatRoomID,
         showUserInfo,
+        repliedMessage,
       } = messageData;
+
+      if (!repliedMessage.replied) repliedMessage.message = '';
 
       const checkMsg = await Message.findOne({ messageID }).exec();
 
@@ -92,6 +95,7 @@ function messageHandler(io, socket) {
         updatedAt,
         messageID,
         showUserInfo,
+        repliedMessage,
       });
 
       const chatRoom = await Chat.findOne({ chatRoomID }).exec();
