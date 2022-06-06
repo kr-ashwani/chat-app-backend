@@ -71,7 +71,7 @@ const MessageSchema = new mongoose.Schema({
       type: String,
       default: '',
     },
-    userPhotoURL: {
+    userPhotoUrl: {
       type: String,
       default: '',
     },
