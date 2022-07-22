@@ -8,17 +8,6 @@ const schemaOptions = {
   },
 };
 
-const RefreshToken = new mongoose.Schema({
-  refreshToken: {
-    type: Array,
-    require: [true, 'provide refresh token'],
-  },
-  tokenStoringTime: {
-    type: Number,
-    require: [true, 'provide refresh token storing time'],
-  },
-});
-
 const UserSchema = new mongoose.Schema(
   {
     firstName: {
@@ -53,9 +42,6 @@ const UserSchema = new mongoose.Schema(
       type: [String],
       validate: (v) => Array.isArray(v) && v.length > 0,
       required: [true, 'provide auth provider'],
-    },
-    refreshTokenList: {
-      type: [RefreshToken],
     },
     userName: {
       type: String,

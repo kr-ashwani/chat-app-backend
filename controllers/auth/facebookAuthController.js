@@ -6,7 +6,6 @@ const {
   createRefreshToken,
 } = require('../utils/newJwtToken');
 const User = require('../../models/user');
-const getValidRefreshTokenList = require('../utils/getValidRefreshTokenList');
 const handleErrors = require('../utils/handleErrors');
 
 async function getFbAccessToken(code, redirectPath) {
@@ -63,9 +62,6 @@ async function facebookSignupController(req, res) {
       email: userInfo.email,
       password,
       authProvider: ['facebook'],
-      refreshTokenList: [
-        { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
-      ],
       photoUrl,
       emailVerified,
       providerAccessToken: access_token,
@@ -115,14 +111,6 @@ async function facebookLoginController(req, res) {
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
 
-    const nonExpiredRefreshToken = getValidRefreshTokenList(
-      user.refreshTokenList
-    );
-
-    user.refreshTokenList = [
-      ...nonExpiredRefreshToken,
-      { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
-    ];
     user.providerAccessToken = access_token;
     user.lastLoginAt = Date.now();
 

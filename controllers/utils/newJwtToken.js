@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 function createAccessToken(payloadData) {
+  const { iat, exp, ...userPayload } = payloadData;
   const accessToken = jwt.sign(
-    payloadData,
+    userPayload,
     process.env.ACCESS_TOKEN_SECRET_KEY,
     {
       expiresIn: process.env.ACCESS_TOKEN_EXP_TIME,
@@ -11,8 +12,9 @@ function createAccessToken(payloadData) {
   return accessToken;
 }
 function createRefreshToken(payloadData) {
+  const { iat, exp, ...userPayload } = payloadData;
   const refreshToken = jwt.sign(
-    payloadData,
+    userPayload,
     process.env.REFRESH_TOKEN_SECRET_KEY,
     {
       expiresIn: process.env.REFRESH_TOKEN_EXP_TIME,

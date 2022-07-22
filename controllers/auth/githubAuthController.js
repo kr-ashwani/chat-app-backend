@@ -6,7 +6,6 @@ const {
   createRefreshToken,
 } = require('../utils/newJwtToken');
 const User = require('../../models/user');
-const getValidRefreshTokenList = require('../utils/getValidRefreshTokenList');
 const handleErrors = require('../utils/handleErrors');
 
 async function getGithubAccessToken(code) {
@@ -97,9 +96,6 @@ async function githubSignupController(req, res) {
       email: userDetail.email,
       password,
       authProvider: ['github'],
-      refreshTokenList: [
-        { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
-      ],
       photoUrl,
       userName: userInfoFromGithub.login,
       providerAccessToken: access_token,
@@ -164,15 +160,6 @@ async function githubLoginController(req, res) {
 
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
-
-    const nonExpiredRefreshToken = getValidRefreshTokenList(
-      user.refreshTokenList
-    );
-
-    user.refreshTokenList = [
-      ...nonExpiredRefreshToken,
-      { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
-    ];
 
     user.providerAccessToken = access_token;
     user.lastLoginAt = Date.now();

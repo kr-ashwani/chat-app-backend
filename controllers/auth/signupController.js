@@ -36,9 +36,6 @@ async function signup_post(req, res) {
       email,
       password: passHash,
       authProvider: [authType],
-      refreshTokenList: [
-        { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
-      ],
       photoUrl,
     });
 
@@ -48,16 +45,6 @@ async function signup_post(req, res) {
       maxAge: process.env.REFRESH_TOKEN_EXP_TIME,
       sameSite: 'lax',
     });
-
-    //  convert mongodb query object to object data.toObject().j
-    //  best way to extract few properties from object and send the remaining.
-    // const currentUser = (({
-    //   authProvider,
-    //   refreshToken,
-    //   password,
-    //   __v,
-    //   ...dataToSend
-    // }) => dataToSend)(data.toObject());
 
     res.status(200).json({ accessToken });
   } catch (err) {

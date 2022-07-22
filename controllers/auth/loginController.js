@@ -1,6 +1,5 @@
 const bcrypt = require('bcrypt');
 const User = require('../../models/user');
-const getValidRefreshTokenList = require('../utils/getValidRefreshTokenList');
 const handleErrors = require('../utils/handleErrors');
 const {
   createRefreshToken,
@@ -27,16 +26,6 @@ async function login_post(req, res) {
     };
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
-
-    const nonExpiredRefreshToken = getValidRefreshTokenList(
-      user.refreshTokenList
-    );
-
-    user.refreshTokenList = [
-      ...nonExpiredRefreshToken,
-      { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
-    ];
-    user.lastLoginAt = Date.now();
 
     await user.save();
 

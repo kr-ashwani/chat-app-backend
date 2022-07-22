@@ -8,7 +8,6 @@ const {
   createRefreshToken,
 } = require('../utils/newJwtToken');
 const User = require('../../models/user');
-const getValidRefreshTokenList = require('../utils/getValidRefreshTokenList');
 const handleErrors = require('../utils/handleErrors');
 
 async function getGoogleToken(code, redirectPath) {
@@ -69,9 +68,6 @@ async function googleSignupController(req, res) {
       email: userPayload.email,
       password,
       authProvider: ['google'],
-      refreshTokenList: [
-        { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
-      ],
       photoUrl,
       emailVerified,
       providerAccessToken: access_token,
@@ -122,14 +118,6 @@ async function googleLoginController(req, res) {
     const accessToken = createAccessToken(payloadData);
     const refreshToken = createRefreshToken(payloadData);
 
-    const nonExpiredRefreshToken = getValidRefreshTokenList(
-      user.refreshTokenList
-    );
-
-    user.refreshTokenList = [
-      ...nonExpiredRefreshToken,
-      { refreshToken: [refreshToken], tokenStoringTime: Date.now() },
-    ];
     user.providerAccessToken = access_token;
     user.lastLoginAt = Date.now();
 
