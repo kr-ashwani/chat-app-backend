@@ -50,43 +50,9 @@ const MessageSchema = new mongoose.Schema({
       default: false,
     },
   },
-  repliedMessage: {
-    replied: {
-      type: Boolean,
-      default: false,
-    },
-    replierID: {
-      type: String,
-      default: '',
-    },
-    message: {
-      type: String,
-      default: '',
-    },
-    messageType: {
-      type: String,
-      default: '',
-    },
-    messageThumbnail: {
-      type: String,
-      default: '',
-    },
-    userPhotoUrl: {
-      type: String,
-      default: '',
-    },
-    userID: {
-      type: String,
-      default: '',
-    },
-    userName: {
-      type: String,
-      default: '',
-    },
-    messageID: {
-      type: String,
-      default: '',
-    },
+  repliedMessageID: {
+    type: String,
+    default: null,
   },
 });
 

@@ -5,7 +5,7 @@ const Message = require('../models/message');
 function messageHandler(io, socket) {
   const getMessageList = async ({ chatRoomID }) => {
     try {
-      const chatRoomMsgs = await Message.find({
+      let chatRoomMsgs = await Message.find({
         chatRoomID,
       })
         .sort({
@@ -13,6 +13,29 @@ function messageHandler(io, socket) {
         })
         .exec();
 
+      chatRoomMsgs = chatRoomMsgs.map(async (elem) => {
+        const msgs = elem.toObject();
+        msgs.repliedMessage = null;
+        if (msgs.repliedMessageID) {
+          const repliedMsgInfo = await Message.findOne(
+            { messageID: msgs.repliedMessageID },
+            {
+              message: 1,
+              messageID: 1,
+              chatRoomID: 1,
+              senderPhotoUrl: 1,
+              senderID: 1,
+              senderName: 1,
+              _id: 0,
+            }
+          ).exec();
+          // eslint-disable-next-line no-param-reassign
+          msgs.repliedMessage = repliedMsgInfo;
+        }
+        return msgs;
+      });
+
+      chatRoomMsgs = await Promise.all(chatRoomMsgs);
       socket.emit('message:list', { chatRoomID, chatRoomMsgs });
     } catch (err) {
       const message = handleErrors(err);
@@ -33,10 +56,9 @@ function messageHandler(io, socket) {
         updatedAt,
         chatRoomID,
         showUserInfo,
+        repliedMessageID,
         repliedMessage,
       } = messageData;
-
-      if (!repliedMessage.replied) repliedMessage.message = '';
 
       const checkMsg = await Message.findOne({ messageID }).exec();
 
@@ -84,7 +106,7 @@ function messageHandler(io, socket) {
           await lastMsg.save();
         }
 
-      const newMsg = await Message.create({
+      let newMsg = await Message.create({
         senderID,
         senderName,
         senderPhotoUrl,
@@ -95,8 +117,11 @@ function messageHandler(io, socket) {
         updatedAt,
         messageID,
         showUserInfo,
-        repliedMessage,
+        repliedMessageID,
       });
+
+      newMsg = newMsg.toObject();
+      newMsg.repliedMessage = repliedMessage;
 
       const chatRoom = await Chat.findOne({ chatRoomID }).exec();
 
