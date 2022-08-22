@@ -57,6 +57,9 @@ async function tokenGeneration(req, res, next) {
 
     const user = await User.findOne({ email: userPayload.email }).exec();
 
+    user.lastLoginAt = new Date().getTime();
+    await user.save();
+
     if (!user) {
       res.clearCookie('_auth_token');
       return res.status(403).json('user is not registered.');

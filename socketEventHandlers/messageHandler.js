@@ -1,6 +1,7 @@
 const handleErrors = require('../controllers/utils/handleErrors');
 const Chat = require('../models/chat');
 const Message = require('../models/message');
+const User = require('../models/user');
 
 function messageHandler(io, socket) {
   const getMessageList = async ({ chatRoomID }) => {
@@ -15,20 +16,46 @@ function messageHandler(io, socket) {
 
       chatRoomMsgs = chatRoomMsgs.map(async (elem) => {
         const msgs = elem.toObject();
+
+        const userInfo = await User.findOne(
+          { _id: msgs.senderID },
+          {
+            firstName: 1,
+            lastName: 1,
+            photoUrl: 1,
+            _id: 0,
+          }
+        ).exec();
+        msgs.senderName = `${userInfo.firstName} ${userInfo.lastName}`;
+        msgs.senderPhotoUrl = userInfo.photoUrl;
+
         msgs.repliedMessage = null;
         if (msgs.repliedMessageID) {
-          const repliedMsgInfo = await Message.findOne(
+          let repliedMsgInfo = await Message.findOne(
             { messageID: msgs.repliedMessageID },
             {
               message: 1,
               messageID: 1,
               chatRoomID: 1,
-              senderPhotoUrl: 1,
               senderID: 1,
-              senderName: 1,
               _id: 0,
             }
           ).exec();
+
+          repliedMsgInfo = repliedMsgInfo.toObject();
+          const userInfo2 = await User.findOne(
+            { _id: repliedMsgInfo.senderID },
+            {
+              firstName: 1,
+              lastName: 1,
+              photoUrl: 1,
+              _id: 0,
+            }
+          ).exec();
+
+          repliedMsgInfo.senderName = `${userInfo2.firstName} ${userInfo2.lastName}`;
+          repliedMsgInfo.senderPhotoUrl = userInfo2.photoUrl;
+
           // eslint-disable-next-line no-param-reassign
           msgs.repliedMessage = repliedMsgInfo;
         }
@@ -108,8 +135,6 @@ function messageHandler(io, socket) {
 
       let newMsg = await Message.create({
         senderID,
-        senderName,
-        senderPhotoUrl,
         chatRoomID,
         message,
         messageType,
@@ -121,6 +146,8 @@ function messageHandler(io, socket) {
       });
 
       newMsg = newMsg.toObject();
+      newMsg.senderName = senderName;
+      newMsg.senderPhotoUrl = senderPhotoUrl;
       newMsg.repliedMessage = repliedMessage;
 
       const chatRoom = await Chat.findOne({ chatRoomID }).exec();

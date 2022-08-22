@@ -20,14 +20,6 @@ const MessageSchema = new mongoose.Schema({
     type: String,
     required: [true, 'sender is missing'],
   },
-  senderName: {
-    type: String,
-    required: [true, 'sender name is missing'],
-  },
-  senderPhotoUrl: {
-    type: String,
-    required: [true, 'sender photoUrl is missing'],
-  },
   createdAt: {
     type: Number,
     required: [true, 'createdAt is missing'],

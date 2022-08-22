@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 require('dotenv').config(); // for accessing environment variables
 const socketio = require('socket.io');
 const authRoutes = require('./routes/authRoutes/authRoutes');
+const uploadFileRoute = require('./routes/fileUploadRoutes/uploadFileRoute');
 const authProvidersRoutes = require('./routes/authRoutes/authProvidersRoutes');
 const tokenGeneration = require('./middleware/auth/tokenGeneration');
 const chatHandler = require('./socketEventHandlers/chatHandler');
@@ -73,6 +74,8 @@ app.use(tokenGeneration);
 //  routes
 app.use(authRoutes);
 app.use('/auth', authProvidersRoutes);
+
+app.use(uploadFileRoute);
 
 app.use(express.static('../frontend/build'));
 app.get('/*', async (req, res) => {
