@@ -17,6 +17,8 @@ function chatHandler(io, socket) {
         lastMessageTimestamp,
         messageData,
         msgInfoTime,
+        groupChatPicture,
+        groupChatName,
       } = payload;
 
       const newChatRoom = await Chat.create({
@@ -28,13 +30,15 @@ function chatHandler(io, socket) {
         lastMessageID,
         chatRoomID,
         lastMessageTimestamp,
+        groupChatPicture,
+        groupChatName,
       });
 
       // chatRoom:create:success
 
       socket.emit('chatRoom:create:success', { messageData, msgInfoTime });
 
-      if (participants.length === 2) {
+      if (groupChatName) {
         const senderInfo = await User.findOne({ _id: participants[0] }).exec();
         const receiverInfo = await User.findOne({
           _id: participants[1],
@@ -51,6 +55,12 @@ function chatHandler(io, socket) {
           lastName: senderInfo.lastName,
           photoUrl: senderInfo.photoUrl,
           newChatRoom,
+        });
+      } else {
+        participants.forEach((elem) => {
+          socket.to(elem).emit('DB:chatRoom:create', {
+            newChatRoom,
+          });
         });
       }
     } catch (err) {
@@ -70,7 +80,7 @@ function chatHandler(io, socket) {
         .exec();
 
       response = response.map(async (elem) => {
-        if (elem.participants.length === 2) {
+        if (!elem.groupChatName) {
           const arr = elem.participants.filter((e) => e !== payload);
           const user = await User.findOne({ _id: arr[0] }).exec();
           return { ...getUserInfo(user), ...elem.toObject() };
