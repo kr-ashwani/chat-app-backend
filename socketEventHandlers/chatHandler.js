@@ -38,8 +38,7 @@ function chatHandler(io, socket) {
 
       socket.emit('chatRoom:create:success', { messageData, msgInfoTime });
 
-      console.log(groupChatName);
-      if (groupChatName) {
+      if (!groupChatName) {
         const senderInfo = await User.findOne({ _id: participants[0] }).exec();
         const receiverInfo = await User.findOne({
           _id: participants[1],
