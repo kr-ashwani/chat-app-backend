@@ -46,6 +46,10 @@ const MessageSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  fileID: {
+    type: String,
+    default: null,
+  },
 });
 
 const Message = mongoose.model('message', MessageSchema);

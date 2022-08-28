@@ -17,7 +17,6 @@ function userHandler(io, socket) {
   };
 
   async function updateUserProfile(payload) {
-    console.log(payload);
     try {
       let updatedUser = null;
       if (payload.changedValue.fileUrl) {

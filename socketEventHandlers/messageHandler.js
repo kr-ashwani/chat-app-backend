@@ -1,5 +1,6 @@
 const handleErrors = require('../controllers/utils/handleErrors');
 const Chat = require('../models/chat');
+const File = require('../models/file');
 const Message = require('../models/message');
 const User = require('../models/user');
 
@@ -30,6 +31,11 @@ function messageHandler(io, socket) {
         msgs.senderPhotoUrl = userInfo.photoUrl;
 
         msgs.repliedMessage = null;
+        msgs.fileInfo = null;
+        if (msgs.fileID) {
+          const msgFileInfo = await File.findOne({ _id: msgs.fileID }).exec();
+          msgs.fileInfo = msgFileInfo;
+        }
         if (msgs.repliedMessageID) {
           let repliedMsgInfo = await Message.findOne(
             { messageID: msgs.repliedMessageID },
@@ -85,6 +91,7 @@ function messageHandler(io, socket) {
         showUserInfo,
         repliedMessageID,
         repliedMessage,
+        fileInfo,
       } = messageData;
 
       const checkMsg = await Message.findOne({ messageID }).exec();
@@ -100,7 +107,7 @@ function messageHandler(io, socket) {
         { chatRoomID },
         {
           $set: {
-            lastMessage: message,
+            lastMessage: fileInfo ? fileInfo.fileName : message,
             lastMessageType: messageType,
             lastMessageTimestamp: createdAt,
             updatedAt,
@@ -111,7 +118,7 @@ function messageHandler(io, socket) {
 
       const updatedChatRoom = {
         chatRoomID,
-        lastMessage: message,
+        lastMessage: fileInfo ? fileInfo.fileName : message,
         lastMessageType: messageType,
         lastMessageTimestamp: createdAt,
         updatedAt,
@@ -133,6 +140,9 @@ function messageHandler(io, socket) {
           await lastMsg.save();
         }
 
+      let newFile = null;
+      if (fileInfo) newFile = await File.create({ ...fileInfo });
+
       let newMsg = await Message.create({
         senderID,
         chatRoomID,
@@ -143,12 +153,14 @@ function messageHandler(io, socket) {
         messageID,
         showUserInfo,
         repliedMessageID,
+        fileID: newFile ? newFile._id : null,
       });
 
       newMsg = newMsg.toObject();
       newMsg.senderName = senderName;
       newMsg.senderPhotoUrl = senderPhotoUrl;
       newMsg.repliedMessage = repliedMessage;
+      newMsg.fileInfo = newFile;
 
       const chatRoom = await Chat.findOne({ chatRoomID }).exec();
 
