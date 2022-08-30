@@ -44,9 +44,14 @@ function messageHandler(io, socket) {
               messageID: 1,
               chatRoomID: 1,
               senderID: 1,
+              fileID: 1,
               _id: 0,
             }
           ).exec();
+
+          const fileInfo = await File.findOne({
+            _id: repliedMsgInfo.fileID,
+          }).exec();
 
           repliedMsgInfo = repliedMsgInfo.toObject();
           const userInfo2 = await User.findOne(
@@ -59,6 +64,7 @@ function messageHandler(io, socket) {
             }
           ).exec();
 
+          repliedMsgInfo.fileInfo = fileInfo;
           repliedMsgInfo.senderName = `${userInfo2.firstName} ${userInfo2.lastName}`;
           repliedMsgInfo.senderPhotoUrl = userInfo2.photoUrl;
 
