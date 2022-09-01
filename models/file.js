@@ -29,6 +29,10 @@ const FileSchema = new mongoose.Schema(
       type: String,
       required: [true, 'extension is  missing'],
     },
+    inputType: {
+      type: String,
+      required: [true, 'inputType is  missing'],
+    },
   },
   schemaOptions
 );
