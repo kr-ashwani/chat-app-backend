@@ -33,6 +33,10 @@ const FileSchema = new mongoose.Schema(
       type: String,
       required: [true, 'inputType is  missing'],
     },
+    dimensions: {
+      type: Object,
+      default: null,
+    },
   },
   schemaOptions
 );

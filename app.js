@@ -29,6 +29,7 @@ const io = socketio(server, {
       'https://www.msgbits.com',
       'http://localhost:3000',
       'http://192.168.29.250:3000',
+      'http://172.20.10.13:3000',
     ],
     credentials: true,
   },
@@ -54,6 +55,7 @@ app.use(
       'https://www.msgbits.com',
       'http://localhost:3000',
       'http://192.168.29.250:3000',
+      'http://172.20.10.13:3000',
     ],
     credentials: true,
   })
