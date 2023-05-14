@@ -45,10 +45,9 @@ async function tokenGeneration(req, res, next) {
       }
     }
 
-    logUserIP(userName, userIP);
-
     // if you dont have refresh token as cookie
     if (!_auth_token) {
+      logUserIP(userName, userIP);
       req.accessToken = null;
       req.user = null;
       return next();
@@ -63,6 +62,7 @@ async function tokenGeneration(req, res, next) {
       );
       userPayload = decoded;
     } catch (err) {
+      logUserIP(userName, userIP);
       res.clearCookie('_auth_token');
       return res.status(403).json('invalid refresh token.');
     }
@@ -70,6 +70,7 @@ async function tokenGeneration(req, res, next) {
     const user = await User.findOne({ email: userPayload.email }).exec();
 
     if (!user) {
+      logUserIP(userName, userIP);
       res.clearCookie('_auth_token');
       return res.status(403).json('user is not registered.');
     }
@@ -93,6 +94,9 @@ async function tokenGeneration(req, res, next) {
     req.user = getUserInfo(user);
     req.refreshToken = refreshToken;
     req.accessToken = accessToken;
+
+    userName = `${user.firstName} ${user.lastName}`;
+    logUserIP(userName, userIP);
 
     return next();
   } catch (err) {
