@@ -61,17 +61,8 @@ app.use(
   })
 );
 
-// app.set('trust proxy', 1);
-// for serving static files creates dedicated routes for files.
-// app.use(express.static("public"));
-// http://localhost:3300/style.css
-// app.use('/assets', express.static('public'));
-//  http://localhost:3300/assets/style.css
+app.set('trust proxy', true);
 
-// app.use(getData);  custom middleware.
-
-// app.set('view engine', 'ejs');
-//  populate accessToken refreshToken and user in request.
 app.use(tokenGeneration);
 //  routes
 app.use(authRoutes);
@@ -83,7 +74,6 @@ app.use(express.static('../frontend/build'));
 app.get('/*', async (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
-//  mongodb change stream logic
 
 //  socket logic
 io.on('connection', (socket) => {
@@ -96,9 +86,6 @@ io.on('connection', (socket) => {
   userHandler(io, socket);
   leaveRoomHandler(io, socket);
 });
-
-// message handler
-// dbMessageHandler(io);
 
 server.listen(port, () => {
   console.log(`server running on ${port}`);

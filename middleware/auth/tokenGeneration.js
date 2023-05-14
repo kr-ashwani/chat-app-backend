@@ -7,7 +7,15 @@ const User = require('../../models/user');
 const handleErrors = require('../../controllers/utils/handleErrors');
 const getUserInfo = require('../../controllers/utils/getUserInfo');
 
+function logUserIP(userName, userIP) {
+  console.log(`IP address of ${userName || 'Anonymous user'} is  ${userIP}`);
+}
+
 async function tokenGeneration(req, res, next) {
+  const userIP =
+    (req.headers['x-forwarded-for'] || '').split(',').pop().trim() ||
+    req.socket.remoteAddress;
+  let userName = null;
   const { _auth_token } = req.cookies;
   const _access_token = req.headers.authorization?.split(' ').pop();
   try {
@@ -22,11 +30,13 @@ async function tokenGeneration(req, res, next) {
         const user = await User.findOne({ email: decoded.email }).exec();
 
         if (!user) {
+          logUserIP(userName, userIP);
           res.clearCookie('_auth_token');
           return res.status(403).json('user is not registered.');
         }
 
         req.user = getUserInfo(user);
+        userName = `${user.firstName} ${user.lastName}`;
         req.refreshToken = _auth_token;
         req.accessToken = _access_token;
         return next();
@@ -34,6 +44,8 @@ async function tokenGeneration(req, res, next) {
         console.log(err.message);
       }
     }
+
+    logUserIP(userName, userIP);
 
     // if you dont have refresh token as cookie
     if (!_auth_token) {
