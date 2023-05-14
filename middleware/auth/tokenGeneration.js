@@ -103,6 +103,7 @@ async function tokenGeneration(req, res, next) {
 
     return next();
   } catch (err) {
+    logUserIP(userName, userIP);
     const message = handleErrors(err);
     res.status(403).json({ message });
   }
