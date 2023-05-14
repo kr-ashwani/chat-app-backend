@@ -36,7 +36,10 @@ async function tokenGeneration(req, res, next) {
         }
 
         req.user = getUserInfo(user);
+
         userName = `${user.firstName} ${user.lastName}`;
+        logUserIP(userName, userIP);
+
         req.refreshToken = _auth_token;
         req.accessToken = _access_token;
         return next();
