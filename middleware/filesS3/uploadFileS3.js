@@ -33,8 +33,8 @@ const uploadFileS3 = async (req, res, next) => {
 
     uploadSingle(req, res, (err) => {
       if (err) {
-        console.log(err);
-        return res.status(400).json({ success: false, message: err.message });
+        const message = handleErrors(err);
+        res.status(500).json({ success: false, message });
       }
       if (!req.file) return next();
       //  populating imageURL property on req
@@ -43,7 +43,7 @@ const uploadFileS3 = async (req, res, next) => {
     });
   } catch (err) {
     const message = handleErrors(err);
-    res.status(400).json({ success: false, message });
+    res.status(500).json({ success: false, message });
   }
 };
 
