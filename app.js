@@ -70,9 +70,9 @@ app.use('/auth', authProvidersRoutes);
 
 app.use(uploadFileRoute);
 
-app.use(express.static('../frontend/build'));
+app.use(express.static(`${process.env.FRONTEND_BUILD}`));
 app.get('/*', async (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(__dirname, `${process.env.FRONTEND_BUILD}/index.html`));
 });
 
 //  socket logic
