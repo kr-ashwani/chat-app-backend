@@ -72,7 +72,7 @@ app.use(uploadFileRoute);
 
 app.use(express.static(`${process.env.FRONTEND_BUILD}`));
 app.get('/*', async (req, res) => {
-  res.sendFile(path.join(__dirname, `${process.env.FRONTEND_BUILD}/index.html`));
+  res.sendFile(`${process.env.FRONTEND_BUILD}/index.html`);
 });
 
 //  socket logic
